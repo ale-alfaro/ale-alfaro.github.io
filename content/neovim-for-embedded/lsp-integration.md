@@ -1,13 +1,12 @@
 ---
 title: Neovim as your Embedded IDE - LSP Integration
-date: 2026-03-29
+created: 2026-03-29
 modified: 2026-03-29 18:13
 ---
 
 In this entry we will learn how to do LSP integration, which might be the biggest quality of life improvement modern IDEs provide. At a later point I might cover the other two.
 
 Given that at the time of the writing of this blog Neovim is about to release its 0.12 version which has couple handy features that we can use to get us started, I will be using the nightly version of Neovim which has all of these features and is pretty stable at this point. We also will be using vim.pack, Neovim's native plugin manager, for minimal use of 3rd party plugins in our config[^1]
-
 
 ## Clangd and LSP integration
 
@@ -304,6 +303,5 @@ Now there might be additional work to be done to get this features to work as yo
 [^2]: More info in the README in the [repo](https://github.com/jrop/nvimv)
 
 [^3]: See the docs for more info on [Zephyr SDK](https://docs.zephyrproject.org/latest/develop/toolchains/zephyr_sdk.html#zephyr-sdk)
-
 
 ---

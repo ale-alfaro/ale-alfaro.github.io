@@ -62,7 +62,7 @@ plugins:
     enabled: true
     options:
       enableInHtmlEmbed: false
-      enableCheckbox: true
+      enableCheckbox: false
       disableBrokenWikilinks: true
     order: 30
   - source: github:quartz-community/github-flavored-markdown
@@ -79,23 +79,6 @@ plugins:
   - source: github:quartz-community/description
     enabled: true
     order: 70
-  - source: github:quartz-community/latex
-    enabled: false
-    options:
-      renderEngine: katex
-    order: 80
-  - source: github:quartz-community/citations
-    enabled: false
-    order: 85
-  - source: github:quartz-community/hard-line-breaks
-    enabled: false
-    order: 90
-  - source: github:quartz-community/ox-hugo
-    enabled: false
-    order: 91
-  - source: github:quartz-community/roam
-    enabled: false
-    order: 92
   - source: github:quartz-community/remove-draft
     enabled: true
   - source: github:quartz-community/explicit-publish
@@ -126,11 +109,6 @@ plugins:
     layout:
       position: left
       priority: 50
-  - source: github:quartz-community/graph
-    enabled: false
-    layout:
-      position: right
-      priority: 10
   - source: github:quartz-community/search
     enabled: true
     layout:
@@ -194,8 +172,7 @@ plugins:
     enabled: true
     options:
       links:
-        GitHub: https://github.com/jackyzha0/quartz
-        Discord Community: https://discord.gg/cRFFHYye7t
+        GitHub: https://github.com/ale-alfaro
   - source: github:quartz-community/recent-notes
     enabled: false
   - source: github:quartz-community/spacer
@@ -215,9 +192,9 @@ plugins:
     options:
       includeAll: false
       includedProperties:
-        - created
-        - modified
+        - description
         - tags
+        - aliases
       excludedProperties: []
       hidePropertiesView: false
       delimiters: ---
@@ -226,17 +203,6 @@ plugins:
     layout:
       position: beforeBody
       priority: 15
-      display: all
-  - source: github:quartz-community/encrypted-pages
-    enabled: true
-    options:
-      visibility: icon
-      iterations: 600000
-      passwordField: password
-    order: 900
-    layout:
-      position: body
-      priority: 100
       display: all
   - source: github:quartz-community/stacked-pages
     enabled: false

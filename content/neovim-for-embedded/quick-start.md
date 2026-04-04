@@ -1,9 +1,8 @@
 ---
-title: Neovim 0.12 Quick Start
+title: Neovim Quick Start
 created: 2026-03-29
 modified: 2026-03-29 16:51
 ---
-
 
 There's many ways to install Neovim all listed in the official [website](https://neovim.io/doc/install) but I'm going to show one more way to do it. Not because I want to be cool and edgy but because the way I will show is how I manage **most of my development tools both on Mac and Linux including python packages, rust-based CLIs, etc**. Not only that but [Mise](https://mise.jdx.dev/),the one and only tool manager, can also be a environment variable manager and even a task runner. I have to say this has me excited as hell specially as I like to try out tools and move between projects with different tooling requirements constantly. I will stop preaching and just show the goods so this is how you install mise (after you inspected the shell script coming from a stranger from the internet of course) :
 
