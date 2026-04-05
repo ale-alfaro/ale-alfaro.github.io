@@ -83,4 +83,4 @@ NVIM_APPNAME=nvim-minimax nvim
 
 Once that is done, you should have now a working installation of Neovim with a good foundation to start customizing!
 
-![[nvim_for_embedded_dev1.png]]
+![[permanent/blog/res/nvim_for_embedded_dev1.png]]

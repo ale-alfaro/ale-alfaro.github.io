@@ -10,4 +10,4 @@ bun = "latest"
 [tasks.build_server]
 description = "Build and deploy over localhost"
 alias = "build"
-run = ['bun quartz build --serve', 'xdg-open http://localhost:8080']
+run = ['bun quartz build --serve']
