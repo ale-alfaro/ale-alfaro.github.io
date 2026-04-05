@@ -62,7 +62,7 @@ plugins:
     enabled: true
     options:
       enableInHtmlEmbed: false
-      enableCheckbox: true
+      disableBrokenWikilinks: true
     order: 30
   - source: github:quartz-community/github-flavored-markdown
     enabled: true
@@ -79,7 +79,7 @@ plugins:
     enabled: true
     order: 70
   - source: github:quartz-community/latex
-    enabled: true
+    enabled: false
     options:
       renderEngine: katex
     order: 80
@@ -100,7 +100,7 @@ plugins:
   - source: github:quartz-community/explicit-publish
     enabled: false
   - source: github:quartz-community/encrypted-pages
-    enabled: true
+    enabled: false
   - source: github:quartz-community/stacked-pages
     enabled: false
     layout:
@@ -201,8 +201,7 @@ plugins:
     enabled: true
     options:
       links:
-        GitHub: https://github.com/jackyzha0/quartz
-        Discord Community: https://discord.gg/cRFFHYye7t
+        GitHub: https://github.com/ale-alfaro
   - source: github:quartz-community/recent-notes
     enabled: false
   - source: github:quartz-community/spacer

@@ -139,7 +139,7 @@ async function resolveSinglePlugin(
 ): Promise<{ plugin: LoadedPlugin | null; error: PluginResolutionError | null }> {
   let packageName: string
   let manifest: Partial<PluginManifest> = {}
-  let pluginSource = "npm"
+  let pluginSource = "bun"
 
   if (typeof specifier === "string") {
     packageName = specifier
@@ -427,7 +427,7 @@ async function resolveSinglePlugin(
         plugin: null,
         error: {
           plugin: packageName,
-          message: `Plugin package not found. Run 'npm install ${packageName}' to install it.`,
+          message: `Plugin package not found. Run 'bun install ${packageName}' to install it.`,
           type: "not-found",
         },
       }
