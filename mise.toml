@@ -1,0 +1,13 @@
+[settings]
+jobs = 8
+
+[hooks]
+cd = "mise i -q && bun install && bun quartz plugin install"
+
+[tools]
+bun = "latest"
+
+[tasks.build_server]
+description = "Build and deploy over localhost"
+alias = "build"
+run = ['bun quartz build --serve']
