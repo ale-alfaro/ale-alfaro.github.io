@@ -6,6 +6,7 @@ cd = "mise i -q && bun install && bun quartz plugin install"
 
 [tools]
 bun = "latest"
+prek = "latest"
 
 [tasks.build_server]
 description = "Build and deploy over localhost"
