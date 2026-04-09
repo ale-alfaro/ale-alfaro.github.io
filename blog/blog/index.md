@@ -5,7 +5,15 @@ created: 2026-03-29
 modified: 2026-03-29 18:13
 ---
 
-# The Format of this Blog and how to navigate
+## About Me
+
+Hi! I am Ale (short of Alejandro, not a beer), and this is my blog on tech topics dealing with:
+
+- Firmware Development ranging from baremetal to Zephyr RTOS
+- Devtools, Neovim and any other tools I find cool and want to share
+- Maybe other topics but that will be the focus for now!
+
+## The Format of this Blog and how to navigate
 
 I write this blog through Obsidian and I'm trying out an uncoventional format for blogs and technical articles but I believe it is the best way for you to find and read what you are interested in and for me to find writing new entries effortless and can share more with the community.
 

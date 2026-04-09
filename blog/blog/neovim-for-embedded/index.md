@@ -5,25 +5,42 @@ created: 2026-04-04T17:54:29.997-07:00
 modified: 2026-04-08T18:11:40.368-07:00
 ---
 
-## Why Neovim?
+> [!question] Why are some of the links not working?
+> As I am writing this not all the entries have been written yet but I have added links to them as I'm planning to in the near future!
 
 I believe that one of the most important choices a developer does in their career is their choice of editor. Not only it is the tool that we use the most, but it is also the one that influenced the most our other choices of tools and how we interact with computers a whole.
 
-I'll tell you about my situation at work to illustrate the point. I work with embedded devices using Nordic SoCs like the nRF52840 running Zephyr and most of the ecosystem for tools to work with this chips is provided by Nordic through their VS Code extension so naturally a lot of people gravitate towards using VS Code as their sole editor for work. I , as you could have guessed already, use Neovim and am the sole developer in my team that uses anything aside from VS Code in my team and to put it plainly I have had to put a lot of work to my setup to catch-up to what a lot of my coworkers have as soon as they install the nRF Connect VS Extension. Although this might seem to be a handicap at first, in the long-run I have come to be way better at the workflow creation and tailoring of environments and developer setups than any person in my team to the point where I am the sole person who knows how to run tests in locally and on CI without a hitch.
+## Why I chose Neovim
 
-None of the stuff I know is rocket science, it is just knowing right incantation CLI flags and options to bend the tools to do exactly what I want. But getting to that recipe is not trivial if you don't have an intuition for how CLI tools works or what the native Command Line itself offers. When your only interface to a computer is a terminal-based editor, well you end-up relying on this tool … a lot. One thing I found hard however was to find any resources related to embedded development specific tools and workflows. Aside from the embedded developer space being relatively small when comparing to the other fields in SWE, most of the embedded tooling space has been vendor-specific and can vary quite a ton depending on what your SoC's architecture is. However I think nowadays things are looking way better due to the popularity of open source projects like Zephyr which are establishing standards and tools across the industry.
+At face value,Neovim or any of these non-user friendly but deeply mechanical editors that have been crafted for efficiency, are just a faster way to edit text. But that's not why me and probably most Vim users use a niche editor over objectively more featureful. Personally, my biggest reason to use Neovim has come down to this: control and deep knowledge over my tools. I enjoy making those micro-decisions that Neovim poses everyday, whether to use this keymap or enable this option and learn from them as you would any topic of history you enjoy reading just cause it's deeply interesting to you (Roman history and early christianity, anyone else?). I also feel deeply satisfied my personalized development enviroment that I have built over 2-3 years and there's always much to learn and try to further iterate it just for the heck of it. I would pose that building an editor configuration can be as satisfying as any physical or digital craftmanship. At the end of the day what is craftmanship other than putting effort and love into something that might not deliver "value" to you in a proportional manner but keep doing it for the purpose of doing it? Like you would do building a wooden table or composing a narrative for your role-playing board game next Sunday, I spend my nights and weekends sometimes just doing that odd/geekie activity that has me hooked for some reason.
 
-The following mini-articles or guides are here to enable those who are already interested in using Neovim for embedded development, specifically Zephyr development. These are separated into core key features that an editor must have and that VS code extensions can provide.
+## Neovim and Embedded: What does that look like in practice?
 
-I will not go into the basics of how to use Neovim, for that many resources exist and also reading articles won't help you. I will focus solely on how to go from a fresh Neovim 0.12 installation to one that can rival VS Code and perhaps give you that little push over the hump to switch over to using Neovim as your main IDE. Let’s get started!
+A lot of the ecosystem I work with day-to-day is based on vendor tooling. In firmware development your choice of tools is decided or at least heavily influenced by your SoC vendor. On the pros side this makes tooling easy to choose, on the con side this leaves developers with little control over the tools they use. Nowadays tooling comes in two form-factors:
+
+- VS Code extension
+- CLI tools
+
+Thankfully no more Eclipse-based vendor IDEs are being distributed but they have been replaced with another monolothic IDE: VS Code. CLI tools are still indespensable for the professional setting when you need a non-GUI workflow or automate some process but most of the focus in developer experience from the vendor is poured on the VS Code extensions and not the CLI.
+
+Naturally most teams will gravitate towards using VS Code as their editor for work, sometimes even require it as a policy. Recently I had an akward call to action when my new manager asked everyone about what they used as their IDE. Everyone , with silent nods being the "Yay", responded "VS Code" after the suggestion of my manager. As everyone was ready to leave the decision of making VS Code a policy in my team, I had to raise my voice and be the only one to put up some resistance: "I use Vim..." Silence and more silence. To this day that soft decision hasn't been settled but that really made me feel like a recluse, but with pride on having put-up a fight.
+
+## Sharing and Spreading the Word
+
+To put it plainly I had to put a lot of work to my Neovim setup to catch-up to what a lot of my coworkers had as soon as they one-click installed the nRF Connect VS Extension. This IS a handicap at first, but in the long-run I have come to be way better at doing the "plumbing" no one wants to do because they havent written a bash script in the last year. I become THE docker/CI/testing/automation guy in my team which can be a burden for some but at least you will be indespensable if layoffs come to your doorstep.
+
+One thing I found especially hard in my journey was to find any resources related to embedded development specific tools and workflows. Aside from the embedded developer space being relatively small when comparing to the other fields in SWE, most of the embedded tooling space has been close sourced or tightly coupled to the platform you work with and can vary quite a ton depending. So I want to share things I know, found online or learned through experience to other people who are in this niche developer intersection I am at, hopefully encourage some to join too.
+
+> [!note] The following mini-articles or guides are here to enable those who are already interested in using Neovim for embedded development, specifically Zephyr development.
+> I will not go into the basics of how to use Neovim, for that many resources exist but I will share quick way to get started with a solid config with a fresh Neovim 0.12 installation: [[quick-start|Neovim 0.12 Quick Start]]
 
 ## What Does a Great Editor/IDE Require?
 
-Here are the top of things I believe a good editor experience should offer:
+Here are the top of things I believe a good editor experience should offer and the links to the pages talking about them. I have listed in order of importance, from most important for your enjoyment to least (nice-to-haves)
 
-- LSP integration for diagnostics, code navigation and some neat features like macro expansion while hovering
-- Formatters that can be ran on save to keep your code clean and consistent and complying with your repositories coding guidelines
-- Easy running of task or jobs for building, linting, running test, etc for quick feedback on code you just wrote
+1. [[lsp-integration|LSP integration]] is a must for any editor. For Language Server we will be going through the installation and setup for Zephyr SDK (including the NCS flavored toolchain) using Clangd as our LSP.
+2. [[formatters-and-linters|Formatting and linting]] that can be ran on save to keep your code clean and consistent and complying with your repositories coding guidelines
+3. [[task-runners-and-extras|Task Running]] for building, linting, running test, etc for quick feedback on code you just wrote
 
 > [!question]- The missing key item from this list …
 > You might be looking at this list and see some things missing like being able to debug with a integrated debugger. Although this tools might exist in Neovim as plugins that you can definitely use for embedded (with some effort and searching around) I generally do not recommend going into that rabbit hole due to several reasons:
@@ -31,19 +48,3 @@ Here are the top of things I believe a good editor experience should offer:
 > 1. Support for most embedded target specific toolchains is not great or non-existent in most plugins or being actively mantained
 > 2. Even if 1 wasn't an issue, there are way better tools for debugging such as GDB which if you learn now will pay dividends for the rest of your embedded career.
 > 3. You can easily have another window open running GDB and your editor on another. Why compromise if we can have two great tools doing the specific job they are meant to do?
-
-## How Do I Do All the above with Neovim?
-
-If you are new to Neovim and wish to give it a try go to [[quick-start|Neovim 0.12 Quick Start]] where I will go over a way to get started quickly with a **minimalist** config that I personally wish I had started with
-
-> [!note] All of the guides below are written for Neovim 0.12 but the features themselves do **not** require any of Neovim 0.12 features. There's older ways to achieve the same results
-> However there's a new native package manager and couple [new LSP native integration](https://github.com/neovim/neovim/blob/fc7e5cf6c93fef08effc183087a2c8cc9bf0d75a/runtime/doc/news.txt) features that you might want to add.
-
-The steps below to add each feature can be followed chronologically or also piece-wise. Feel free to jump to whichever section you feel the most interested in learning about:
-
-1. [[lsp-integration|LSP integration]] is a must for any editor. For Language Server we will be going through the installation and setup for Zephyr SDK and also the NCS toolchain (which is just a slightly modified version of the Zephyr SDK) using Clangd as our LSP.
-2. [[formatters-and-linters|Formatting and linting]] are nowadays a requirement for most SW teams. This guide will focus on how to add clang-format and clang-tidy tools to run format when saving and have linter diagnostics as well
-3. [[task-runners-and-extras|Task Running]] to be able to run builds within Neovim can get you that instant feedback you need to know if the changes you are making work. We will go over how to add asynchronous tasks or jobs to Neovim to run builds and get the diagnostics from the compiler right away in the editor
-
-> [!question] Why are some of the links not working?
-> As I am writing this not all the entries have been written yet but I have added links to them as I'm planning to in the near future!

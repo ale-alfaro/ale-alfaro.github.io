@@ -2,7 +2,7 @@
 title: {{title}}
 created:  {{date}}
 last: {{date}} {{time}}
-draft: true
+publish: false
 ---
 
 # {{title}}
