@@ -1,14 +1,24 @@
-[settings]
-jobs = 8
-
-[hooks]
-cd = "mise i -q && bun install && bun quartz plugin install"
 
 [tools]
 bun = "latest"
 prek = "latest"
 
-[tasks.build_server]
+[tasks.install_deps]
+description = "Install dependencies and plugins"
+run = """
+mise install
+bun install
+bun quartz plugin install
+"""
+
+
+[tasks.build_deploy]
+description = "Build and deploy in CI"
+depends = ["install_deps"]
+run = ['bun quartz build -d blog -v --bundleInfo']
+
+[tasks.build_local]
 description = "Build and deploy over localhost"
 alias = "build"
-run = ['bun quartz build --serve']
+depends = ["install_deps"]
+run = ['bun quartz build -d blog --serve']

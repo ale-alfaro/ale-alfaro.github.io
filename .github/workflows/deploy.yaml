@@ -1,65 +1,24 @@
-name: Deploy Quartz site to GitHub Pages
-
+name: Build and Deploy Quartz site to GitHub Pages
 on:
   push:
     branches:
       - v5
-
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
+  contents: write
 jobs:
-  build:
+  build-deploy:
+    concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
     runs-on: ubuntu-latest
-    name: Deploy v5 to Cloudflare Pages
+    name: Deploy Github Pages with Quartz v5
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: oven-sh/setup-bun@v2
-      - name: Cache dependencies
-        uses: actions/cache@v5
+      - uses: jdx/mise-action@v4
         with:
-          path: ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-
-
-      - name: Cache Quartz plugins
-        uses: actions/cache@v5
+          experimental: true
+        run: mise run build_deploy
+      - name: Deploy site
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          path: .quartz/plugins
-          key: ${{ runner.os }}-plugins-${{ hashFiles('quartz.lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-plugins-
-
-      - run: bun install --frozen-lockfile
-
-      - name: Install Quartz plugins
-        run: bun quartz plugin install
-
-      - name: Check types and style
-        run: bun run check
-
-      - name: Build Quartz
-        run: bun quartz build
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: public
-  deploy:
-    needs: build
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          folder: public

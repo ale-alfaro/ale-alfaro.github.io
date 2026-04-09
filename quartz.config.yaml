@@ -1,6 +1,8 @@
+#yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
+
 # yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
-  pageTitle: Quartz 5
+  pageTitle: "Ale by Ale "
   pageTitleSuffix: ""
   enableSPA: true
   enablePopovers: true
@@ -17,8 +19,8 @@ configuration:
     cdnCaching: true
     typography:
       header: Schibsted Grotesk
-      body: Source Sans Pro
-      code: IBM Plex Mono
+      body: Fira Code
+      code: Fira Code
     colors:
       lightMode:
         light: "#faf8f8"
@@ -89,7 +91,7 @@ plugins:
     enabled: false
     order: 85
   - source: github:quartz-community/hard-line-breaks
-    enabled: false
+    enabled: true
     order: 90
   - source: github:quartz-community/ox-hugo
     enabled: false
@@ -100,11 +102,11 @@ plugins:
   - source: github:quartz-community/remove-draft
     enabled: true
   - source: github:quartz-community/explicit-publish
-    enabled: false
+    enabled: true
   - source: github:quartz-community/encrypted-pages
-    enabled: false
+    enabled: true
   - source: github:quartz-community/stacked-pages
-    enabled: false
+    enabled: true
     layout:
       position: afterBody
       priority: 50
@@ -120,12 +122,14 @@ plugins:
     enabled: true
   - source: github:quartz-community/og-image
     enabled: true
+    options: {}
   - source: github:quartz-community/cname
     enabled: true
   - source: github:quartz-community/canvas-page
     enabled: true
   - source: github:quartz-community/content-page
     enabled: true
+    options: {}
   - source: github:quartz-community/folder-page
     enabled: true
   - source: github:quartz-community/tag-page
@@ -235,6 +239,15 @@ plugins:
       position: beforeBody
       priority: 15
       display: all
+  - source:
+      name: quartz-themes
+      repo: github:saberzero1/quartz-themes
+      subdir: plugin
+      ref: main
+    enabled: false
+    order: 50
+    options:
+      theme: kanagawa
 layout:
   groups:
     toolbar:
