@@ -11,6 +11,10 @@ bun install
 bun quartz plugin install
 """
 
+[tasks.sync]
+description = "Sync with Quartz"
+depends = ["install_deps"]
+run = ['bun quartz sync -d blog -v']
 
 [tasks.build_deploy]
 description = "Build and deploy in CI"
