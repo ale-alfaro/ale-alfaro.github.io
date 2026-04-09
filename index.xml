@@ -10,7 +10,37 @@
     <link>https://ale-alfaro.github.io/tags/</link>
     <guid>https://ale-alfaro.github.io/tags/</guid>
     <description><![CDATA[  ]]></description>
-    <pubDate>Thu, 09 Apr 2026 01:48:33 GMT</pubDate>
+    <pubDate>Thu, 09 Apr 2026 02:09:39 GMT</pubDate>
+  </item><item>
+    <title>Neovim as Your Embedded IDE</title>
+    <link>https://ale-alfaro.github.io/blog/neovim-for-embedded/</link>
+    <guid>https://ale-alfaro.github.io/blog/neovim-for-embedded/</guid>
+    <description><![CDATA[ Why Neovim? I believe that one of the most important choices a developer does in their career is their choice of editor. ]]></description>
+    <pubDate>Thu, 09 Apr 2026 01:11:40 GMT</pubDate>
+  </item><item>
+    <title>Homepage</title>
+    <link>https://ale-alfaro.github.io/blog/</link>
+    <guid>https://ale-alfaro.github.io/blog/</guid>
+    <description><![CDATA[ The Format of this Blog and how to navigate I write this blog through Obsidian and I’m trying out an uncoventional format for blogs and technical articles but I believe it is the best way for you to find and read what you are interested in and for me to find writing new entries effortless and can sh... ]]></description>
+    <pubDate>Sun, 29 Mar 2026 18:13:00 GMT</pubDate>
+  </item><item>
+    <title>LSP Integration</title>
+    <link>https://ale-alfaro.github.io/blog/neovim-for-embedded/lsp-integration</link>
+    <guid>https://ale-alfaro.github.io/blog/neovim-for-embedded/lsp-integration</guid>
+    <description><![CDATA[ Lsp-integration Given that at the time of the writing of this blog the 0.12 Neovim release is finally out we will be using it for this guide and couple of its features. ]]></description>
+    <pubDate>Sun, 29 Mar 2026 18:13:00 GMT</pubDate>
+  </item><item>
+    <title>Homepage</title>
+    <link>https://ale-alfaro.github.io/</link>
+    <guid>https://ale-alfaro.github.io/</guid>
+    <description><![CDATA[ The Format of this Blog and how to navigate I write this blog through Obsidian and I’m trying out an uncoventional format for blogs and technical articles but I believe it is the best way for you to find and read what you are interested in and for me to find writing new entries effortless and can sh... ]]></description>
+    <pubDate>Sun, 29 Mar 2026 18:13:00 GMT</pubDate>
+  </item><item>
+    <title>Neovim Quick Start</title>
+    <link>https://ale-alfaro.github.io/blog/neovim-for-embedded/quick-start</link>
+    <guid>https://ale-alfaro.github.io/blog/neovim-for-embedded/quick-start</guid>
+    <description><![CDATA[ Quick-start Neovim 0.12 has couple handy features that we can use to add the editor features I listed previously all natively and minimize the usage of third party plugins and adding too much to a starter config so I strongly recommend that if you are starting a new config you use it. ]]></description>
+    <pubDate>Sun, 29 Mar 2026 16:51:00 GMT</pubDate>
   </item>
     </channel>
   </rss>
