@@ -121,7 +121,7 @@ Once you open up your new Neovim installation with MiniMax you might notice coup
 >   - `<leader>ek` for `20_keymaps.lua`
 >   - `<leader>em` for `30_mini.lua` and `<leader>ep` for `40_plugins.lua`
 
-### Options (10\_options.lua)
+### Options (10_options.lua)
 
 Add system clipboard as the default yank (copy) register
 
@@ -129,7 +129,7 @@ Add system clipboard as the default yank (copy) register
 vim.o.clipboard = 'unnamedplus'
 ```
 
-### Keymappings (20\_keymaps.lua)
+### Keymappings (20_keymaps.lua)
 
 Some basic ones that are missing for me:
 
@@ -187,7 +187,7 @@ nmap_leader('ll', '<Cmd>lua vim.lsp.codelens.run()<CR>',        'Lens')
 nmap_leader('f', '<Cmd>lua require("conform").format()<CR>', 'Format selection')
 ```
 
-### Colorscheme (40\_plugin.lua)
+### Colorscheme (40_plugin.lua)
 
 Go to the top of `30_mini.lua` and comment the following line:
 
@@ -222,7 +222,7 @@ Config.now(function()
 end)
 ```
 
-### Lua Language Server (40\_plugin.lua)
+### Lua Language Server (40_plugin.lua)
 
 Let's add our first LSP:
 
@@ -271,7 +271,7 @@ One other thing to add is a `.luarc.json` to the root of the your Neovim config.
 }
 ```
 
-### Plugin Tweaks (30\_mini.lua)
+### Plugin Tweaks (30_mini.lua)
 
 The `mini.clue` plugin is nice to have for remembering keymaps. It will pop-up a window when you press one of its triggers but I think the default delay is too long for my liking. You can tweak this inside the setup function of the plugin:
 
