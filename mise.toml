@@ -16,6 +16,11 @@ description = "Sync with Quartz"
 depends = ["install_deps"]
 run = ['bun quartz sync -d blog -v']
 
+[tasks.commit]
+description = "Commit and Sync with Quartz"
+depends = ["install_deps"]
+run = ['bun quartz sync -d blog -v --commit']
+
 [tasks.build_deploy]
 description = "Build and deploy in CI"
 depends = ["install_deps"]

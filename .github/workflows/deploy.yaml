@@ -3,10 +3,13 @@ on:
   push:
     branches:
       - v5
+
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 jobs:
-  build-deploy:
+  build:
     concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
     runs-on: ubuntu-latest
     name: Deploy Github Pages with Quartz v5
@@ -18,7 +21,18 @@ jobs:
         with:
           experimental: true
       - run: mise run build_deploy
-      - name: Deploy site
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          folder: public
+          path: public
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

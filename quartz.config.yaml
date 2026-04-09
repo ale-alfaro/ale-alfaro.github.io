@@ -2,7 +2,7 @@
 
 # yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
-  pageTitle: "Ale by Ale "
+  pageTitle: Ale by Ale
   pageTitleSuffix: ""
   enableSPA: true
   enablePopovers: true
@@ -63,7 +63,18 @@ plugins:
   - source: github:quartz-community/obsidian-flavored-markdown
     enabled: true
     options:
+      comments: true
+      highlight: true
+      wikilinks: true
+      callouts: true
+      mermaid: true
+      parseTags: true
+      parseArrows: true
+      parseBlockReferences: true
       enableInHtmlEmbed: false
+      enableYouTubeEmbed: true
+      enableVideoEmbed: true
+      enableCheckbox: true
       disableBrokenWikilinks: true
     order: 30
   - source: github:quartz-community/github-flavored-markdown
@@ -100,19 +111,19 @@ plugins:
     enabled: false
     order: 92
   - source: github:quartz-community/remove-draft
-    enabled: true
+    enabled: false
   - source: github:quartz-community/explicit-publish
     enabled: true
   - source: github:quartz-community/encrypted-pages
-    enabled: true
+    enabled: false
   - source: github:quartz-community/stacked-pages
-    enabled: true
+    enabled: false
     layout:
       position: afterBody
       priority: 50
       display: all
   - source: github:quartz-community/alias-redirects
-    enabled: true
+    enabled: false
   - source: github:quartz-community/content-index
     enabled: true
     options:
@@ -122,14 +133,12 @@ plugins:
     enabled: true
   - source: github:quartz-community/og-image
     enabled: true
-    options: {}
   - source: github:quartz-community/cname
     enabled: true
   - source: github:quartz-community/canvas-page
     enabled: true
   - source: github:quartz-community/content-page
     enabled: true
-    options: {}
   - source: github:quartz-community/folder-page
     enabled: true
   - source: github:quartz-community/tag-page
@@ -228,8 +237,8 @@ plugins:
       includeAll: false
       includedProperties:
         - description
-        - tags
-        - aliases
+        - created
+        - modified
       excludedProperties: []
       hidePropertiesView: false
       delimiters: ---
@@ -239,15 +248,6 @@ plugins:
       position: beforeBody
       priority: 15
       display: all
-  - source:
-      name: quartz-themes
-      repo: github:saberzero1/quartz-themes
-      subdir: plugin
-      ref: main
-    enabled: false
-    order: 50
-    options:
-      theme: kanagawa
 layout:
   groups:
     toolbar:

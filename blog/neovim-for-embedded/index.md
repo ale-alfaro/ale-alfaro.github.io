@@ -1,8 +1,6 @@
 ---
-publish: true
 title: Neovim as Your Embedded IDE
-created: 2026-04-04T17:54:29.997-07:00
-modified: 2026-04-08T18:11:40.368-07:00
+publish: true
 ---
 
 > [!question] Why are some of the links not working?
