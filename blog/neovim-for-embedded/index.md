@@ -1,6 +1,8 @@
 ---
 title: Neovim as Your Embedded IDE
 publish: true
+created: Saturday, April 11th 2026, 2:52:31 pm
+modified: Saturday, April 11th 2026, 3:14:23 pm
 ---
 
 > [!question] Why are some of the links not working?
@@ -8,20 +10,20 @@ publish: true
 
 I believe that one of the most important choices a developer makes in their career is their choice of editor. Not only it is the tool that we use the most, but it is also the one that influences the most our other choices of tools and how we interact with computers a whole.
 
-## Why I chose Neovim
+## Why I Chose Neovim
 
-At face value, Neovim or any of these non-user friendly but deeply mechanical editors that have been crafted for efficiency, are just a faster way to edit text. But that's not why me and probably most Vim users use a niche editor over one that is objectively more featureful. Personally, my biggest reason to use Neovim has come down to this: control and deep knowledge over my tools. I enjoy making those micro-decisions that Neovim poses everyday, whether to use this keymap or enable this option and learn from them as you would any topic of history you enjoy reading about just because it's deeply interesting to you (Roman history and early Christianity, anyone else?). I also feel deeply satisfied by my personalized development enviroment that I have built over 2-3 years, and there's always much to learn and try to further iterate it just for the heck of it. I would pose that building an editor configuration can be as satisfying as any physical or digital craftmanship. At the end of the day what is craftmanship other than putting effort and love into something that might not deliver "value" to you in a proportional manner but you keep doing it for the purpose of doing it? Like someone might do building a wooden table or composing a narrative for your role-playing board game next Sunday, I spend my nights and weekends sometimes just doing that odd/geekie activity that has me hooked for some reason.
+At face value, Neovim or any of these non-user friendly but deeply mechanical editors that have been crafted for efficiency, are just a faster way to edit text. But that's not why me and probably most Vim users use a niche editor over one that is objectively more feature-fulll. Personally, my biggest reason to use Neovim has come down to this: control and deep knowledge over my tools. I enjoy making those micro-decisions that Neovim poses everyday, whether to use this key-map or enable this option and learn from them as you would any topic of history you enjoy reading about just because it's deeply interesting to you (Roman history and early Christianity, anyone else?). I also feel deeply satisfied by my personalized development environment that I have built over 2-3 years, and there's always much to learn and try to further iterate it just for the heck of it. I would pose that building an editor configuration can be as satisfying as any physical or digital craftsmanship. At the end of the day what is craftsmanship other than putting effort and love into something that might not deliver "value" to you in a proportional manner but you keep doing it for the purpose of doing it? Like someone might do building a wooden table or composing a narrative for your role-playing board game next Sunday, I spend my nights and weekends sometimes just doing that odd/geekie activity that has me hooked for some reason.
 
-## Neovim and Embedded: What does that look like in practice?
+## Neovim and Embedded: What Does that Look like in Practice?
 
 A lot of the ecosystem I work with day-to-day is based on vendor tooling. In firmware development your choice of tools is decided or at least heavily influenced by your SoC vendor. On the pros side this makes tooling easy to choose; on the cons side this leaves developers with little control over the tools they use. Nowadays tooling comes in two form-factors:
 
 - VS Code extension
 - CLI tools
 
-Thankfully no more Eclipse-based vendor IDEs are being distributed but they have been replaced with another monolothic IDE: VS Code. CLI tools are still indespensable for the professional setting when you need a non-GUI workflow or automate some process but most of the focus in developer experience from the vendor is poured on the VS Code extensions and not the CLI.
+Thankfully no more Eclipse-based vendor IDEs are being distributed but they have been replaced with another monolithic IDE: VS Code. CLI tools are still indispensable for the professional setting when you need a non-GUI workflow or automate some process but most of the focus in developer experience from the vendor is poured on the VS Code extensions and not the CLI.
 
-Naturally most teams will gravitate towards using VS Code as their editor for work, sometimes even require it as a policy. Recently I had an awkward call to action when my new manager asked everyone about what they used as their IDE. Everyone, with silent nods for "Yay", assented "VS Code" after the suggestion of my manager. As everyone was ready to leave the decision of making VS Code a policy in my team, I had to raise my voice and be the only one to put up some resistance: "I use Vim..." Silence and more silence. To this day that soft decision hasn't been settled but that really made me feel like a recluse, but with pride at having put-up a fight.
+Naturally most teams will gravitate towards using VS Code as their editor for work, sometimes even require it as a policy. Recently I had an awkward call to action when my new manager asked everyone about what they used as their IDE. Everyone, with silent nods for 'Yay', assented "VS Code" after the suggestion of my manager. As everyone was ready to leave the decision of making VS Code a policy in my team, I had to raise my voice and be the only one to put up some resistance: "I use Vim…" Silence and more silence. To this day that soft decision hasn't been settled but that really made me feel like a recluse, but with pride at having put-up a fight.
 
 ## Sharing and Spreading the Word
 

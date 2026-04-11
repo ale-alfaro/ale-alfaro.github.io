@@ -1,17 +1,15 @@
 ---
 publish: true
 title: LSP Integration
-created: 2026-03-29
-modified: 2026-03-29 18:13
+created: Sunday, March 29th 2026, 12:00:00 am
+modified: Saturday, April 11th 2026, 3:16:46 pm
 ---
-
-# Lsp-integration
 
 Given that at the time of the writing of this blog the 0.12 Neovim release is finally out we will be using it for this guide and couple of its features. If you are interested in upgrading and/or trying to setup a brand new config or just want to follow this guide step by step take a look at the [[quick-start|Neovim Quick Start]]
 
 ## Clangd Installation
 
-Clangd is the only viable option we have as a C/C++ language server. That’s not to say it is a bad choice, but we will be dealing with Clang and LLVM when most embedded toolchains are GCC-based so there will be some friction. Clangd has all if not more features than the VS Code C/C++ Intellisense and the benefit of being open-source and having great ecosystem of tooling. Also if you aren't aware already ARM has released its new open-source ARM Cortex-M toolchain using LLVM and the Zephyr-SDK 1.0.0 release has officially added it as a second toolchain you can use for Zephyr projects!
+Clangd is the only viable option we have as a C/C++ language server. That's not to say it is a bad choice, but we will be dealing with Clang and LLVM when most embedded toolchains are GCC-based so there will be some friction. Clangd has all if not more features than the VS Code C/C++ Intellisense and the benefit of being open-source and having great ecosystem of tooling. Also if you aren't aware already ARM has released its new open-source ARM Cortex-M toolchain using LLVM and the Zephyr-SDK 1.0.0 release has officially added it as a second toolchain you can use for Zephyr projects!
 
 Let's install Clangd using the method I suggested for [[quick-start#Installation|installing Neovim]] or you can use one of methods in the [docs](https://clangd.llvm.org/installation):
 

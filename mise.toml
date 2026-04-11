@@ -1,33 +1,63 @@
+[hooks]
+cd = 'mise i -q'
+
+[shell_alias]
+quartz = './quartz/bootstrap-cli.mjs'
+
 
 [tools]
 bun = "latest"
-prek = "latest"
+hk = "latest"
+pkl = "latest"
+prettier = "latest"
 
-[tasks.install_deps]
-description = "Install dependencies and plugins"
-run = """
-mise install
+
+[tasks.bun_install]
+description = "Install bun dependencies"
+outputs = "node_modules/**"
+run = '''
 bun install
-bun quartz plugin install
-"""
+'''
+
+[tasks.install_quartz_plugins]
+description = "Install quartz plugins"
+outputs = ".quartz/plugins/**"
+run = '''
+bun run install-plugins
+'''
+
+[tasks.install]
+description = "Install all"
+run = [{ task = 'bun_install' }, { task = 'install_quartz_plugins' }]
+
+
+[tasks.check]
+description = "Check"
+run = 'bun prettier . --check'
+
+[tasks.format_fix]
+description = "Check"
+run = 'bun prettier . --write'
 
 [tasks.sync]
 description = "Sync with Quartz"
-depends = ["install_deps"]
+depends = ["install"]
 run = ['bun quartz sync -d blog -v']
 
 [tasks.commit]
 description = "Commit and Sync with Quartz"
-depends = ["install_deps"]
+depends = ["install"]
 run = ['bun quartz sync -d blog -v --commit']
 
 [tasks.build_deploy]
 description = "Build and deploy in CI"
-depends = ["install_deps"]
+depends = ["install"]
+outputs = 'public/**'
 run = ['bun quartz build -d blog -v --bundleInfo']
 
 [tasks.build_local]
 description = "Build and deploy over localhost"
 alias = "build"
-depends = ["install_deps"]
+depends = ["install"]
+outputs = 'public/**'
 run = ['bun quartz build -d blog --serve']

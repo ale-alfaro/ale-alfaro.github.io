@@ -20,7 +20,7 @@ jobs:
       - uses: jdx/mise-action@v4
         with:
           experimental: true
-      - run: bun run check
+      - run: hk check
       - run: mise run build_deploy
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
