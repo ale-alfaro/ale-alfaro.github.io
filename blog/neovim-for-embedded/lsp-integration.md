@@ -213,6 +213,134 @@ That should be it to get us the basic LSP integration that most people will be h
 - Go to implementation and references
 - Diagnostics and code actions to fix them
 
-Now there might be additional work to be done to get this features to work as you like them but that will be all in terms of getting you started with the first big piece of the puzzle to working with Zephyr and any other embedded project using Neovim! I have written couple sections that go into more of the tweaking and improvements one can do below, I encourage you to read on if you feel like you are still lacking features or are having issues with Clangd working with your setup.
+Now there might be additional work to be done to get this features to work as you like them but that will be all in terms of getting you started with the first big piece of the puzzle to working with Zephyr and any other embedded project using Neovim! I have written couple sections that go into about some issues that you can encounter and some tweaks and improvements. I encourage you to read on if you feel like you are still lacking features or are having issues with Clangd working with your setup.
 
-## [[clangd-pitfalls|TBD]]
+---
+
+## Issue: `compile_commands.json` not found
+
+Clangd by default will search for `compile_commands.json` by looking at each parent directory of the current source file being analyzed. It will also search under a directory named `build` at each parent too. More on this can be found in their [design docs](https://clangd.llvm.org/design/compile-commands#compilation-databases).
+
+Depending on how you run your build command the `compile_commands.json` might not be found during the search all the time. If you run `west build -p -b <BOARD> <path/to/my/app>` from the root of the workspace without changing the naming of the build directory the search will work but this is inherently fragile. We need to figure out the best way to surface it to a place where it will be found for all source file we navigate to within our **current active application.**
+
+> [!caution] Search for the `compile_commands.json` and analysis is triggered when the LSP attaches to the buffer of a source file (i.e opening a file for editing). That means **your project wont be analyzed as whole and instead analyzed file by file.**
+> This affects the finding of references and definitions that are in other transalation units. But fear not, clangd has a good solution for this using a [Background Index Feature](https://clangd.llvm.org/design/#index).
+
+You can go with the simple solution and symlink the file to the top of the workspace using the `west topdir` command:
+
+```sh
+ln -sf /path/to/build_dir/compile_commands.json “$(west topdir)/compile_commands.json”
+```
+
+If you tend to work on a single app , use only one build command per app and infrequently switch between different ones this might be enough. You do it once per app and that's it.
+
+> [!tip]
+> For those who want a more advanced way of achieving this and know some CMake black magic you can\
+> come up with several solution to symlink the file automatically after building an app.
+> Here's a snippet I use within the app CMakeLists.txt:
+>
+> ```cmake
+> execute_process(
+>   COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_BINARY_DIR}/compile_commands.json
+>           ${WEST_TOPDIR}/compile_commands.json
+> )
+> ```
+>
+> Conveniently, Zephyr always sets the `WEST_TOPDIR` CMake variable
+
+## Configuration Snippets
+
+Leaving some useful code snippets targeted for specific areas that can be improved in the LSP configuration
+
+### Diagnostics configuration
+
+A solid baseline:
+
+````lua
+```lua
+vim.diagnostic.config {
+  severity_sort = true,
+  float = {
+    border = 'rounded',
+    source = 'if_many',
+    underline = true,
+  },
+  virtual_text = {
+    spacing = 2,
+    source = 'if_many',
+    prefix = 'o',
+  },
+  -- Disable signs in the gutter.
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = 'E',
+      [vim.diagnostic.severity.WARN] = 'W',
+      [vim.diagnostic.severity.INFO] = 'I',
+      [vim.diagnostic.severity.HINT] = 'H',
+    },
+  },
+}
+````
+
+## Completions
+
+I have to say that the Neovim native completion can be better and is also so confusing to know what does what. I just editted slightly the default configuration from [[quick-start]] to add:
+
+1. Tab and Shift-Tab as keymaps to move through the menu
+2. Fuzzy filtering
+3. Smaller delay
+
+```lua
+  local process_items_opts = { filtersort = 'fuzzy', kind_priority = { Text = -1, Snippet = 99 } }
+  local process_items = function(items, base)
+    return MiniCompletion.default_process_items(items, base, process_items_opts)
+  end
+  require('mini.completion').setup {
+    delay = { completion = 50 },
+    lsp_completion = {
+      -- Without this config autocompletion is set up through `:h 'completefunc'`.
+      -- Although not needed, setting up through `:h 'omnifunc'` is cleaner
+      -- (sets up only when needed) and makes it possible to use `<C-u>`.
+      source_func = 'omnifunc',
+      process_items = process_items,
+    },
+  }
+
+  local imap_expr = function(lhs, rhs)
+    vim.keymap.set('i', lhs, rhs, { expr = true })
+  end
+  imap_expr('<Tab>', [[pumvisible() ? "\<C-n>" : "\<Tab>"]])
+  imap_expr('<S-Tab>', [[pumvisible() ? "\<C-p>" : "\<S-Tab>"]])
+```
+
+One interesting things is that you can also specify the priority of the completion "kinds":
+
+```lua
+CompletionItemKind = {
+  Text = 1,
+  Method = 2,
+  Function = 3,
+  Constructor = 4,
+  Field = 5,
+  Variable = 6,
+  Class = 7,
+  Interface = 8,
+  Module = 9,
+  Property = 10,
+  Unit = 11,
+  Value = 12,
+  Enum = 13,
+  Keyword = 14,
+  Snippet = 15,
+  Color = 16,
+  File = 17,
+  Reference = 18,
+  Folder = 19,
+  EnumMember = 20,
+  Constant = 21,
+  Struct = 22,
+  Event = 23,
+  Operator = 24,
+  TypeParameter = 25,
+},
+```

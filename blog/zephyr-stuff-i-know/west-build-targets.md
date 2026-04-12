@@ -1,8 +1,9 @@
 ---
-title: West Build Targets - The Tools Hidden under the Build Directory
+title: West Build Targets
 created: 2026 04 12
 publish: true
 modified: 2026 04 12
+description: " The Tools Hidden under the Build Directory"
 ---
 
 If you have ever worked with Zephyr RTOS in any capacity you should have come across west, Zephyr's meta-tool. Aside from the `west build -p -b board` command, do you know what the other flags do?
