@@ -1,0 +1,20 @@
+{
+    "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint-cli2/main/schema/markdownlint-cli2-config-schema.json",
+    "outputFormatters": [
+        [
+            "markdownlint-cli2-formatter-pretty",
+            {
+                "appendLink": true,
+            },
+        ],
+    ],
+    "globs": ["blog/**/*.md", "!blog/templates/**"],
+    "showFound": true,
+    "frontMatter": "<head>[^]*<\/head>",
+    "config": {
+        "MD041": false,
+        "MD003": false,
+        "MD040": false,
+    },
+    "fix": true,
+}

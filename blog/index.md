@@ -10,7 +10,7 @@ publish: true
 Hi! I am Ale (short of Alejandro, not a beer), and this is my blog on tech topics dealing with:
 
 - Firmware Development in areas dealing with ARM Cortex-M, Zephyr RTOS and IoT
-- Devtools, [[neovim-for-embedded/|Neovim]] and any other tools I find cool and want to share
+- Devtools, [[neovim-for-embedded/index.md|Neovim]] and any other tools I find cool and want to share
 - Maybe other topics but that will be the focus for now!
 
 ## The Format of This Blog and how to Navigate

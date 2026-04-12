@@ -136,7 +136,6 @@ vim.lsp: Enabled Configurations ~
   - on_attach: <function @/home/alealfaro/.local/share/nvim-minimax/site/pack/core/opt/nvim-lspconfig/lsp/clangd.lua:95>
   - on_init: <function @/home/alealfaro/.local/share/nvim-minimax/site/pack/core/opt/nvim-lspconfig/lsp/clangd.lua:90>
   - root_markers = { '.clangd', '.clang-tidy', '.clang-format', 'compile_commands.json', 'compile_flags.txt', 'configure.ac','.git'},
-
 ```
 
 This is looking great! The `vim.lsp` internal checks are looking good and also we got detailed info on clangd including a confirmation that it is attached to a buffer loaded with the file we opened (in my case `main.c` ).
@@ -154,15 +153,15 @@ vim.lsp: Active Clients ~
 And also notice the root directory that clangd is using, it using the zephyr directory although I ran the build in the directory above it. Why? This is Neovim's (and ours) doing actually, we specified the root markers in the config in `after/lsp/clangd.lua` to be the following:
 
 ```lua
-  root_markers = {
-    '.clangd',
-    '.clang-tidy',
-    '.clang-format',
-    'compile_commands.json',
-    'compile_flags.txt',
-    'configure.ac', -- AutoTools
-    '.git',
-  },
+root_markers = {
+  '.clangd',
+  '.clang-tidy',
+  '.clang-format',
+  'compile_commands.json',
+  'compile_flags.txt',
+  'configure.ac', -- AutoTools
+  '.git',
+},
 ```
 
 Zephyr has a `.clang_format` file and `.git` directory while the top of the workspace has none of those markers. No wonder Neovim is setting the project root to be the Zephyr top directory. Now this might not be a big deal know but it can be if we pull in other sources that are not under the root directory. We should try to fix this. A better set of root markers might be this:

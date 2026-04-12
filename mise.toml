@@ -4,13 +4,12 @@ cd = 'mise i -q'
 [shell_alias]
 quartz = './quartz/bootstrap-cli.mjs'
 
-
 [tools]
 bun = "latest"
+dprint = "latest"
 hk = "latest"
 pkl = "latest"
 prettier = "latest"
-
 
 [tasks.bun_install]
 description = "Install bun dependencies"
@@ -30,15 +29,6 @@ bun run install-plugins
 description = "Install all"
 run = [{ task = 'bun_install' }, { task = 'install_quartz_plugins' }]
 
-
-[tasks.check]
-description = "Check"
-run = 'bun prettier . --check'
-
-[tasks.format_fix]
-description = "Check"
-run = 'bun prettier . --write'
-
 [tasks.sync]
 description = "Sync with Quartz"
 depends = ["install"]
@@ -53,11 +43,15 @@ run = ['bun quartz sync -d blog -v --commit']
 description = "Build and deploy in CI"
 depends = ["install"]
 outputs = 'public/**'
+hide = true
 run = ['bun quartz build -d blog -v --bundleInfo']
 
 [tasks.build_local]
 description = "Build and deploy over localhost"
 alias = "build"
-depends = ["install"]
 outputs = 'public/**'
-run = ['bun quartz build -d blog --serve']
+run = ['bun quartz build -d blog --serve -v']
+
+[env]
+HK_MISE = "1"
+HK_SUMMARY_TEXT = "1"

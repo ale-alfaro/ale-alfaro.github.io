@@ -1,21 +1,31 @@
 {
-  "printWidth": 100,
-  "quoteProps": "as-needed",
-  "trailingComma": "all",
-  "tabWidth": 2,
-  "semi": false,
-  "overrides": [
-    {
-      "files": "*.canvas",
-      "options": {
-        "parser": "json"
-      }
-    },
-    {
-      "files": "*.base",
-      "options": {
-        "parser": "yaml"
-      }
-    }
-  ]
+    "printWidth": 120,
+    "quoteProps": "as-needed",
+    "trailingComma": "all",
+    "tabWidth": 4,
+    "semi": false,
+    "overrides": [
+        {
+            "files": [
+                "quartz/**/*",
+                "globals.d.ts"
+            ],
+            "options": {
+                "tabWidth": 2,
+                "printWidth": 80
+            }
+        },
+        {
+            "files": "*.canvas",
+            "options": {
+                "parser": "json"
+            }
+        },
+        {
+            "files": "*.base",
+            "options": {
+                "parser": "yaml"
+            }
+        }
+    ]
 }

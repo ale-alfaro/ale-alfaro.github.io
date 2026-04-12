@@ -85,7 +85,6 @@ Thankfully Zephyr sets this option and the build generates this artifact already
 ❯ west build -p -b native_sim zephyr/samples/hello_world
 ....
 ❯ cat build/compile_commands.json | jq '.[0]'
-
 ```
 
 Example compile_commands.json
@@ -131,15 +130,15 @@ ln -sf /path/to/build_dir/compile_commands.json “$(west topdir)/compile_comman
 If you tend to work on a single app , use only one build command per app and infrequently switch between different ones this might be enough. You do it once per app and that's it.
 
 > [!tip]
-> For those who want a more advanced way of achieving this and know some CMake black magic you can \
+> For those who want a more advanced way of achieving this and know some CMake black magic you can\
 > come up with several solution to symlink the file automatically after building an app.
 > Here's a snippet I use within the app CMakeLists.txt:
 >
 > ```cmake
->  execute_process(
->    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_BINARY_DIR}/compile_commands.json
->            ${WEST_TOPDIR}/compile_commands.json
->  )
+> execute_process(
+>   COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_BINARY_DIR}/compile_commands.json
+>           ${WEST_TOPDIR}/compile_commands.json
+> )
 > ```
 >
 > Conveniently, Zephyr always sets the `WEST_TOPDIR` CMake variable
@@ -159,7 +158,7 @@ For Clangd to get information on your toolchain it requires you to specify the l
 
 > [`-–query-driver`](https://releases.llvm.org/10.0.0/tools/clang/tools/extra/docs/clangd/Configuration.html#id2)
 >
-> Clangd makes use of clang behind the scenes, so it might fail to detect your standard library or \
+> Clangd makes use of clang behind the scenes, so it might fail to detect your standard library or\
 > built-in headers if your project is making use of a custom toolchain.
 > That is quite common in hardware-related projects, especially for the ones making use of gcc (e.g. ARM's arm-none-eabi-gcc).
 > You can specify your driver as a list of globs or full paths, then clangd will execute drivers and fetch necessary include paths to compile your code.
@@ -207,7 +206,7 @@ export ZEPHYR_SDK_INSTALL_DIR=/home/alealfaro/ncs/toolchains/43683a87ea/opt/zeph
 We only care about the two variables at the bottom and the rest we can ignore so we can filter out the results using grep and writing that to a .env file
 
 ```sh
- ❯ nrfutil toolchain-manager env --ncs-version v3.2.1 --as-script | grep 'ZEPHYR' > .env
+❯ nrfutil toolchain-manager env --ncs-version v3.2.1 --as-script | grep 'ZEPHYR' > .env
 ```
 
 As a sanity check and also to figure out where the GCC compiler is located, use the `ls` or `tree` command to view the contents of the toolchain directory:

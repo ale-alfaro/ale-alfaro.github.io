@@ -164,7 +164,6 @@ map('<C-Up>', '<C-w>k', nil, { desc = 'Focus window up' })
 map('<C-Down>', '<C-w>j', nil, { desc = 'Focus window up' })
 map('<M-Up>', '<C-o>:move -2<cr>', 'i', { desc = 'Move Line Up' })
 map('<M-Down>', '<C-o>:move +1<cr>', 'i', { desc = 'Move Line Down' })
-
 ```
 
 > [!hint] To make your changes take effect immediately, restart your neovim config `:restart` and map it to something you will remember
@@ -201,7 +200,6 @@ This is the default colorscheme the author chose. Alongside those options you ca
 -- now(function() vim.cmd('colorscheme minisummer') end)
 -- now(function() vim.cmd('colorscheme miniautumn') end)
 -- now(function() vim.cmd('colorscheme randomhue') end)
-
 ```
 
 If none are to your taste, go to the bottom of the `40_plugin.lua` file and uncomment this codeblock and try out the other ones listed here
@@ -236,7 +234,6 @@ now_if_args(function()
     'lua_ls',
   })
 end)
-
 ```
 
 > [!caution] You will need you to first install `lua-language-server` executable and add it to your path.
@@ -247,25 +244,25 @@ One other thing to add is a `.luarc.json` to the root of the your Neovim config.
 
 ```json
 {
-  "diagnostics.globals": ["vim"],
+    "diagnostics.globals": ["vim"],
 
-  "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
-  "runtime": {
-    "version": "LuaJIT"
-  },
-  "workspace": {
-    "checkThirdParty": false,
-    "library": [
-      "$VIMRUNTIME/lua",
-      "${3rd}/luv/library",
-      "lua/custom",
-      "$XDG_DATA_HOME/nvim/site/pack/core/opt/conform.nvim",
-      "$XDG_DATA_HOME/nvim/site/pack/core/opt/nvim-treesitter",
-      "$XDG_DATA_HOME/nvim/site/pack/core/opt/mini.nvim",
-      "$XDG_DATA_HOME/nvim/site/pack/core/opt/plenary.nvim",
-      "$XDG_DATA_HOME/nvim/site/pack/core/opt/nvim/after"
-    ]
-  }
+    "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+    "runtime": {
+        "version": "LuaJIT"
+    },
+    "workspace": {
+        "checkThirdParty": false,
+        "library": [
+            "$VIMRUNTIME/lua",
+            "${3rd}/luv/library",
+            "lua/custom",
+            "$XDG_DATA_HOME/nvim/site/pack/core/opt/conform.nvim",
+            "$XDG_DATA_HOME/nvim/site/pack/core/opt/nvim-treesitter",
+            "$XDG_DATA_HOME/nvim/site/pack/core/opt/mini.nvim",
+            "$XDG_DATA_HOME/nvim/site/pack/core/opt/plenary.nvim",
+            "$XDG_DATA_HOME/nvim/site/pack/core/opt/nvim/after"
+        ]
+    }
 }
 ```
 
@@ -282,22 +279,22 @@ As an aside, the way plugin loading works usually is that the plugin will need a
 This are specific to working with Zephyr and other similar projects. We first add the languages that are present in the codebase to the list in the `nvim-treesitter` setup:
 
 ```lua
-  local languages = {
-    -- These are already pre-installed with Neovim. Used as an example.
-    'lua',
-    'c',
-    'devicetree',
-    'kconfig',
-    'markdown',
-    'python',
-    'vimdoc',
-    'yaml',
-    -- Add here more languages with which you want to use tree-sitter
-    -- To see available languages:
-    -- - Execute `:=require('nvim-treesitter').get_available()`
-    -- - Visit 'SUPPORTED_LANGUAGES.md' file at
-    --   https://github.com/nvim-treesitter/nvim-treesitter/blob/main
-  }
+local languages = {
+  -- These are already pre-installed with Neovim. Used as an example.
+  'lua',
+  'c',
+  'devicetree',
+  'kconfig',
+  'markdown',
+  'python',
+  'vimdoc',
+  'yaml',
+  -- Add here more languages with which you want to use tree-sitter
+  -- To see available languages:
+  -- - Execute `:=require('nvim-treesitter').get_available()`
+  -- - Visit 'SUPPORTED_LANGUAGES.md' file at
+  --   https://github.com/nvim-treesitter/nvim-treesitter/blob/main
+}
 ```
 
 Then we add enable clangd and other LSP that we use day-to-day.

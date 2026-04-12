@@ -1,39 +1,39 @@
 name: Build and Deploy Quartz site to GitHub Pages
 on:
-  push:
-    branches:
-      - v5
+    push:
+        branches:
+            - v5
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+    contents: read
+    pages: write
+    id-token: write
 jobs:
-  build:
-    concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
-    runs-on: ubuntu-latest
-    name: Deploy Github Pages with Quartz v5
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - uses: jdx/mise-action@v4
-        with:
-          experimental: true
-      - run: hk check
-      - run: mise run build_deploy
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: public
+    build:
+        concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
+        runs-on: ubuntu-latest
+        name: Deploy Github Pages with Quartz v5
+        steps:
+            - uses: actions/checkout@v6
+              with:
+                  fetch-depth: 0
+            - uses: jdx/mise-action@v4
+              with:
+                  experimental: true
+            - run: hk check
+            - run: mise run build_deploy
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: public
 
-  deploy:
-    needs: build
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    deploy:
+        needs: build
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
