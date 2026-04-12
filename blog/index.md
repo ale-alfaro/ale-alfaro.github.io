@@ -1,7 +1,7 @@
 ---
 title: Homepage
-created: Sunday, March 29th 2026, 12:00:00 am
-modified: Saturday, April 11th 2026, 3:18:37 pm
+created: 2026 03 29
+modified: 2026 04 11
 publish: true
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: Clangd - Deep-dive and Avoiding pitfalls
-created: Wednesday, April 8th 2026, 1:48:00 pm
-modified: Saturday, April 11th 2026, 3:19:48 pm
+created: 2026 04 08
+modified: 2026 04 11
 publish: false
 ---
 

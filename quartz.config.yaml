@@ -2,7 +2,7 @@
 
 # yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
-    pageTitle: Ale by Ale
+    pageTitle: Byte Talk
     pageTitleSuffix: ""
     enableSPA: true
     enablePopovers: true
@@ -33,15 +33,15 @@ configuration:
                 highlight: rgba(143, 159, 169, 0.15)
                 textHighlight: "#fff23688"
             darkMode:
-                light: "#161618"
-                lightgray: "#393639"
-                gray: "#646464"
-                darkgray: "#d4d4d4"
-                dark: "#ebebec"
-                secondary: "#7b97aa"
-                tertiary: "#84a59d"
-                highlight: rgba(143, 159, 169, 0.15)
-                textHighlight: "#b3aa0288"
+                light: "#141417"
+                lightgray: "#2e2e32"
+                gray: "#5a5a64"
+                darkgray: "#dcdce0"
+                dark: "#f0f0f2"
+                secondary: "#6fb5d6"
+                tertiary: "#6ec4ad"
+                highlight: rgba(111, 181, 214, 0.12)
+                textHighlight: "#d4c83060"
 plugins:
     - source: github:quartz-community/created-modified-date
       enabled: true
@@ -96,37 +96,8 @@ plugins:
     - source: github:quartz-community/description
       enabled: true
       order: 70
-    - source: github:quartz-community/latex
-      enabled: false
-      options:
-          renderEngine: katex
-      order: 80
-    - source: github:quartz-community/citations
-      enabled: false
-      order: 85
-    - source: github:quartz-community/hard-line-breaks
-      enabled: false
-      order: 90
-    - source: github:quartz-community/ox-hugo
-      enabled: false
-      order: 91
-    - source: github:quartz-community/roam
-      enabled: false
-      order: 92
-    - source: github:quartz-community/remove-draft
-      enabled: false
     - source: github:quartz-community/explicit-publish
       enabled: true
-    - source: github:quartz-community/encrypted-pages
-      enabled: false
-    - source: github:quartz-community/stacked-pages
-      enabled: false
-      layout:
-          position: afterBody
-          priority: 50
-          display: all
-    - source: github:quartz-community/alias-redirects
-      enabled: false
     - source: github:quartz-community/content-index
       enabled: true
       options:
@@ -144,18 +115,11 @@ plugins:
       enabled: true
     - source: github:quartz-community/folder-page
       enabled: true
-    - source: github:quartz-community/tag-page
-      enabled: false
     - source: github:quartz-community/explorer
       enabled: true
       layout:
           position: left
           priority: 50
-    - source: github:quartz-community/graph
-      enabled: false
-      layout:
-          position: right
-          priority: 10
     - source: github:quartz-community/search
       enabled: true
       layout:
@@ -179,11 +143,6 @@ plugins:
       layout:
           position: beforeBody
           priority: 20
-    - source: github:quartz-community/tag-list
-      enabled: false
-      layout:
-          position: beforeBody
-          priority: 30
     - source: github:quartz-community/page-title
       enabled: true
       layout:
@@ -207,21 +166,11 @@ plugins:
           position: beforeBody
           priority: 5
           condition: not-index
-    - source: github:quartz-community/comments
-      enabled: false
-      options:
-          provider: giscus
-          options: {}
-      layout:
-          position: afterBody
-          priority: 10
     - source: github:quartz-community/footer
       enabled: true
       options:
           links:
               GitHub @ale-alfaro: https://github.com/ale-alfaro
-    - source: github:quartz-community/recent-notes
-      enabled: false
     - source: github:quartz-community/spacer
       enabled: true
       options: {}
@@ -230,10 +179,6 @@ plugins:
           position: left
           priority: 25
           display: mobile-only
-    - source: github:quartz-community/bases-page
-      enabled: true
-      options: {}
-      order: 50
     - source: github:quartz-community/note-properties
       enabled: true
       options:
@@ -274,5 +219,3 @@ layout:
                 - reader-mode
             positions:
                 right: []
-        canvas: {}
-        bases: {}

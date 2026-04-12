@@ -11,23 +11,9 @@ hk = "latest"
 pkl = "latest"
 prettier = "latest"
 
-[tasks.bun_install]
-description = "Install bun dependencies"
-outputs = "node_modules/**"
-run = '''
-bun install
-'''
-
-[tasks.install_quartz_plugins]
-description = "Install quartz plugins"
-outputs = ".quartz/plugins/**"
-run = '''
-bun run install-plugins
-'''
-
 [tasks.install]
-description = "Install all"
-run = [{ task = 'bun_install' }, { task = 'install_quartz_plugins' }]
+description = "Install bun dependencies"
+run = ['bun install', 'bun run install-plugins']
 
 [tasks.sync]
 description = "Sync with Quartz"

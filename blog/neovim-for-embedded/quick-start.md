@@ -1,8 +1,8 @@
 ---
 publish: true
 title: Neovim Quick Start
-created: Sunday, March 29th 2026, 12:00:00 am
-modified: Saturday, April 11th 2026, 3:17:13 pm
+created: 2026 03 29
+modified: 2026 04 11
 ---
 
 Neovim 0.12 has couple handy features that we can use to add the [[blog/neovim-for-embedded/index#What Does a Great Editor/IDE Require?|editor features]] I listed previously all native to minimize the usage of third party plugins and adding too much to a starter config so I **strongly recommend** that if you are starting a new config you use it. Additionally will be using vim.pack, a new native plugin manager, so we don't have to use `lazy.nvim` or other plugin managers[^1]

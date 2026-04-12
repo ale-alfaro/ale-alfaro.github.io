@@ -1,8 +1,8 @@
 ---
 publish: true
 title: LSP Integration
-created: Sunday, March 29th 2026, 12:00:00 am
-modified: Saturday, April 11th 2026, 3:16:46 pm
+created: 2026 03 29
+modified: 2026 04 11
 ---
 
 Given that at the time of the writing of this blog the 0.12 Neovim release is finally out we will be using it for this guide and couple of its features. If you are interested in upgrading and/or trying to setup a brand new config or just want to follow this guide step by step take a look at the [[quick-start|Neovim Quick Start]]
