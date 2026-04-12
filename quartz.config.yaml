@@ -1,6 +1,4 @@
 #yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
-
-# yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
     pageTitle: Byte Talk
     pageTitleSuffix: ""
@@ -23,25 +21,25 @@ configuration:
             code: Fira Code
         colors:
             lightMode:
-                light: "#faf8f8"
-                lightgray: "#e5e5e5"
-                gray: "#b8b8b8"
-                darkgray: "#4e4e4e"
-                dark: "#2b2b2b"
-                secondary: "#284b63"
-                tertiary: "#84a59d"
-                highlight: rgba(143, 159, 169, 0.15)
-                textHighlight: "#fff23688"
+                light: "#fdf6e3"
+                lightgray: "#e0dcc7"
+                gray: "#939b8a"
+                darkgray: "#5c6a72"
+                dark: "#3a464c"
+                secondary: "#3a94c5"
+                tertiary: "#8da101"
+                highlight: rgba(160, 192, 128, 0.15)
+                textHighlight: "#dbbc7f88"
             darkMode:
-                light: "#141417"
-                lightgray: "#2e2e32"
-                gray: "#5a5a64"
-                darkgray: "#dcdce0"
-                dark: "#f0f0f2"
-                secondary: "#6fb5d6"
-                tertiary: "#6ec4ad"
-                highlight: rgba(111, 181, 214, 0.12)
-                textHighlight: "#d4c83060"
+                light: "#2d353b"
+                lightgray: "#475258"
+                gray: "#859289"
+                darkgray: "#d3c6aa"
+                dark: "#e6dfc6"
+                secondary: "#7fbbb3"
+                tertiary: "#83c092"
+                highlight: rgba(127, 187, 179, 0.15)
+                textHighlight: "#dbbc7f88"
 plugins:
     - source: github:quartz-community/created-modified-date
       enabled: true
