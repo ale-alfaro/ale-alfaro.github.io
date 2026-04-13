@@ -212,19 +212,34 @@ That should be it to get us the basic LSP integration that most people will be h
 - Go to definition/declaration
 - Go to implementation and references
 - Diagnostics and code actions to fix them
+- Completions using Neovim's native completion and MiniCompletion for signature help and snippet support ([[quick-start|if you followed the guide here]])
 
 Now there might be additional work to be done to get this features to work as you like them but that will be all in terms of getting you started with the first big piece of the puzzle to working with Zephyr and any other embedded project using Neovim! I have written couple sections that go into about some issues that you can encounter and some tweaks and improvements. I encourage you to read on if you feel like you are still lacking features or are having issues with Clangd working with your setup.
 
+[[#Issue You are getting tons of missing reference errors and other related diagnostics as soon as you open a file]]
+
+[[#Issue Esoteric errors like unknown flags, warnings due to macros such as `LOG_INF` and just noisy diagnostics in general]]
+
+[[#Issue `stdio.h` and other libc headers not found or the correct implementation is not being picked up (i.e using `/usr/lib` instead of your toolchains)]]
+
+[[#Diagnostics configuration]]
+
+[[#Completions with Signature help and snippets]]
+
 ---
 
-## Issue: `compile_commands.json` not found
+## Issue: You are getting tons of missing reference errors and other related diagnostics as soon as you open a file
+
+**Cause:** Most likely the `compile_commands.json` is not found by Clangd due to your build directory not being at the top of the workspace or named differently
+
+**Solution:** Symlink your build directory `compile_commands.json` to the root of the workspace or project
 
 Clangd by default will search for `compile_commands.json` by looking at each parent directory of the current source file being analyzed. It will also search under a directory named `build` at each parent too. More on this can be found in their [design docs](https://clangd.llvm.org/design/compile-commands#compilation-databases).
 
-Depending on how you run your build command the `compile_commands.json` might not be found during the search all the time. If you run `west build -p -b <BOARD> <path/to/my/app>` from the root of the workspace without changing the naming of the build directory the search will work but this is inherently fragile. We need to figure out the best way to surface it to a place where it will be found for all source file we navigate to within our **current active application.**
+Depending on how you run your build command the `compile_commands.json` might not be found during the search all the time. If you run `west build -p -b <BOARD> <path/to/my/app>` from the root of the workspace without changing the naming of the build directory the search will work but this is inherently fragile. as the build directory is not going to be always called `build` nor be at the top of the workspace (though this is a good idea and how Zephyr west build command is usually ran in the docs).
 
-> [!caution] Search for the `compile_commands.json` and analysis is triggered when the LSP attaches to the buffer of a source file (i.e opening a file for editing). That means **your project wont be analyzed as whole and instead analyzed file by file.**
-> This affects the finding of references and definitions that are in other transalation units. But fear not, clangd has a good solution for this using a [Background Index Feature](https://clangd.llvm.org/design/#index).
+> [!caution] Search for the `compile_commands.json` and the analysis is triggered when the LSP attaches to the buffer of a source file (i.e opening a file for editing). That means **your project wont be analyzed as whole and instead analyzed file by file.**
+> This is important to understand as it affects the startup and finding of references and definitions that are in other translation units. But fear not, clangd has a good solution for this using a [Background Index Feature](https://clangd.llvm.org/design/#index).
 
 You can go with the simple solution and symlink the file to the top of the workspace using the `west topdir` command:
 
@@ -248,11 +263,138 @@ If you tend to work on a single app , use only one build command per app and inf
 >
 > Conveniently, Zephyr always sets the `WEST_TOPDIR` CMake variable
 
-## Configuration Snippets
+## Issue: Esoteric errors like unknown flags, warnings due to macros such as `LOG_INF` and just noisy diagnostics in general
+
+**Cause:** Many reasons, as it depends heavily on your toolchain and what your target platform is.
+
+**Solution**: The issue is broad so cant give specifics and some of this are minor nuisances so you might be fine not fixing them at all. Start by always modifying the `.clangd` compile flags and trying the following:
+
+1. Removing the "unknown flags" that are showing up in errors
+2. Adding a target-triple flag matching the target platform
+3. If you work with C++ as well as C in your project you will need to filter/add C++ flags for the C++ sources and similarly with C flags and C sources.
+
+The advice above is shown best by an example `.clangd` instead of explaining:
+
+```yaml
+CompileFlags:
+    # Specifying target triple for an ARM Cortex M33 SoC (nRF52840)
+    Add: [--target=thumbv7m-unknown-none-eabi]
+    # Removing unknown flags by clang
+    Remove: [-fno-reorder-functions, -fno-printf-return-value, -mfp16-format=*]
+---
+If: # Apply this config conditionally
+    PathMatch: [.*\.h, .*\.c] # to all headers OR c files
+    PathExclude: framework/.* # except all files within "framework" (C++ project)
+CompileFlags:
+    # Adding C flags for C23 and upping the diagnostics on some common C issues and supprssing some that I dont care about (no initializers override)
+    Add: [-std=c23, -Wpointer-arith, -Werror=implicit-int, -Wno-initializer-overrides]
+---
+# Do the same thing for C++ sources
+If:
+    PathMatch: [.*\.hpp, .*\.cpp]
+CompileFlags:
+    Add: [-std=c++20]
+Diagnostics:
+    Suppress: [-Wimplicit-enum-enum-cast, -Wvla-cxx-extension]
+```
+
+## Issue: `stdio.h` and other libc headers not found or the correct implementation is not being picked up (i.e using `/usr/lib` instead of your toolchains)
+
+**Cause:** Clangd can't figure out the locations of this standard libraries from your compile flags and goes for the ones your system installation clang uses.
+
+**Solution:** Specify manually adding `-I/path/to/my/lib` to your `.clangd`OR a even better solution is to let Clangd figure it our by having it query your target's compiler using the `--query-driver` **Clangd flag**.
+
+> [!caution] `--query-driver` is not a compiler flag so adding it to a `.clangd` is not going to work. You must pass it to `clangd` through Neovim's LSP client.
+
+For Clangd to get information on your toolchain it requires you to specify the path to your compiler and using an **absolute path that can use globbing**. Below is what the docs say about this flag:
+
+> [_–query-driver_](https://releases.llvm.org/10.0.0/tools/clang/tools/extra/docs/clangd/Configuration.html#id2)
+>
+> Clangd makes use of clang behind the scenes, so it might fail to detect your standard library or built-in headers if your project is making use of a custom toolchain. That is quite common in hardware-related projects, especially for the ones making use of gcc (e.g. ARM’s arm-none-eabi-gcc).
+> You can specify your driver as a list of globs or full paths, then clangd will execute drivers and fetch necessary include paths to compile your code.
+
+Easiest way to add this is to use a glob that captures all of the possible paths of your toolchain's compiler when you are working on your workspace. I work only with Zephyr and have all my toolchain versions in one location so I normally hardcode this into the config that is set in `after/lsp/clangd.lua`. The Zephyr toolchain installation directory looks someting like this:
+
+```sh
+ ❯ tree -L4 --prune ~/zephyr-sdk-root
+/home/alealfaro/zephyr-sdk-root
+├── zephyr-sdk-0.17.0
+...
+├── zephyr-sdk-0.17.4
+│   ├── arm-zephyr-eabi
+│   │   ├── bin
+│   │   │   ├── arm-zephyr-eabi-addr2line
+│   │   │   ├── arm-zephyr-eabi-ar
+│   │   │   ├── arm-zephyr-eabi-as
+│   │   │   ├── arm-zephyr-eabi-c++
+│   │   │   ├── arm-zephyr-eabi-cc -> arm-zephyr-eabi-gcc
+│   │   │   ├── arm-zephyr-eabi-c++filt
+│   │   │   ├── arm-zephyr-eabi-cpp
+│   │   │   ├── arm-zephyr-eabi-ct-ng.config
+│   │   │   ├── arm-zephyr-eabi-elfedit
+│   │   │   ├── arm-zephyr-eabi-g++
+│   │   │   ├── arm-zephyr-eabi-gcc
+│   │   │   ├── arm-zephyr-eabi-gcc-12.2.0
+│   │   │   ├── arm-zephyr-eabi-gcc-ar
+│   │   │   ├── arm-zephyr-eabi-gcc-nm
+│   │   │   ├── arm-zephyr-eabi-gcc-ranlib
+│   │   │   ├── arm-zephyr-eabi-gcov
+│   │   │   ├── arm-zephyr-eabi-gcov-dump
+│   │   │   ├── arm-zephyr-eabi-gcov-tool
+│   │   │   ├── arm-zephyr-eabi-gdb
+│   │   │   ├── arm-zephyr-eabi-gdb-add-index
+│   │   │   ├── arm-zephyr-eabi-gdb-add-index-py
+│   │   │   ├── arm-zephyr-eabi-gdb-py
+│   │   │   ├── arm-zephyr-eabi-gprof
+│   │   │   ├── arm-zephyr-eabi-gprof-py
+│   │   │   ├── arm-zephyr-eabi-ld
+│   │   │   ├── arm-zephyr-eabi-ld.bfd
+│   │   │   ├── arm-zephyr-eabi-lto-dump
+│   │   │   ├── arm-zephyr-eabi-nm
+│   │   │   ├── arm-zephyr-eabi-objcopy
+│   │   │   ├── arm-zephyr-eabi-objdump
+│   │   │   ├── arm-zephyr-eabi-ranlib
+│   │   │   ├── arm-zephyr-eabi-readelf
+│   │   │   ├── arm-zephyr-eabi-size
+│   │   │   ├── arm-zephyr-eabi-strings
+│   │   │   └── arm-zephyr-eabi-strip
+│   │   └── lib
+│   │       ├── libcc1.so -> libcc1.so.0.0.0
+│   │       ├── libcc1.so.0 -> libcc1.so.0.0.0
+│   │       └── libcc1.so.0.0.0
+│   ├── cmake
+│   │   ├── zephyr
+...
+```
+
+I have multiple versions of the Zephyr SDK 0.17 and 0.17.4 and use the `arm-zephyr-eabi` toolchain, yours might be different. The glob to pick up all the versions of `arm-zephyr-eabi-gcc`would look something like this:
+
+```sh
+--query-driver="/home/alealfaro/**/arm-zephyr-eabi/bin/arm-zephyr-eabi-g*"
+```
+
+> [!tip] Using globs for C and C++ analysis
+> Using a glob is useful when working with a C and C++ codebase, `--query-driver="prefix/to/toolchain/bin/arm-zephyr-eabi-g*` will allow Clangd to analyze your code with the right compiler depending on the language used in a file
+
+I can pass it to Neovim like that and have it expand it when the LSP first attaches:
+
+```lua
+---@type vim.lsp.Config
+return {
+  cmd = {
+    'clangd',
+     '--query-driver=/home/alealfaro/**/arm-zephyr-eabi/bin/arm-zephyr-eabi-g*'
+  },
+...
+```
+
+> [!warning] Do not use `~` or environment variables in your strings that get passed as command. They wont' get expanded!
+
+---
 
 Leaving some useful code snippets targeted for specific areas that can be improved in the LSP configuration
 
-### Diagnostics configuration
+## Diagnostics configuration
 
 A solid baseline:
 
@@ -282,35 +424,64 @@ vim.diagnostic.config {
 }
 ````
 
-## Completions
+## Completions with Signature help and snippets
 
-I have to say that the Neovim native completion can be better and is also so confusing to know what does what. I just editted slightly the default configuration from [[quick-start]] to add:
+I have to say that the Neovim native completion can be better and is also so confusing to know what does what. I just edited slightly the default configuration from [[quick-start]] to add:
 
-1. Tab and Shift-Tab as keymaps to move through the menu
+1. Different key maps for triggering the second step or fallback completion sources (i.e snippets or other completion sources)
 2. Fuzzy filtering
-3. Smaller delay
+3. Larger delay for better sources being matched. Counter intuitive I know but this is how the Neovim completion system works :/
 
 ```lua
+  -- Customize post-processing of LSP responses for a better user experience.
+  -- Don't show 'Text' suggestions (usually noisy) and show snippets last.
   local process_items_opts = { filtersort = 'fuzzy', kind_priority = { Text = -1, Snippet = 99 } }
   local process_items = function(items, base)
     return MiniCompletion.default_process_items(items, base, process_items_opts)
   end
+
   require('mini.completion').setup {
-    delay = { completion = 50 },
+    delay = { completion = 300, info = 300, signature = 300 },
     lsp_completion = {
+      auto_setup = false,
       -- Without this config autocompletion is set up through `:h 'completefunc'`.
       -- Although not needed, setting up through `:h 'omnifunc'` is cleaner
       -- (sets up only when needed) and makes it possible to use `<C-u>`.
       source_func = 'omnifunc',
+      -- A function which takes LSP 'textDocument/completion' response items
+      -- (each with `client_id` field for item's server) and word to complete.
+      -- Output should be a table of the same nature as input. Common use case
+      -- is custom filter/sort. Default: `default_process_items`
       process_items = process_items,
+
+      -- A function which takes a snippet as string and inserts it at cursor.
+      -- Default: `default_snippet_insert` which tries to use 'mini.snippets'
+      -- and falls back to `vim.snippet.expand` (on Neovim>=0.10).
+      snippet_insert = function(snippet)
+        local insert = MiniSnippets.config.expand.insert or MiniSnippets.default_insert
+        return insert { body = snippet }
+      end,
+    },
+
+    -- Fallback action as function/string. Executed in Insert mode.
+    -- To use built-in completion (`:h ins-completion`), set its mapping as
+    -- string. Example: set '<C-x><C-l>' for 'whole lines' completion.
+    -- fallback_action = '<C-x><C-l>',
+
+    -- Module mappings. Use `''` (empty string) to disable one. Some of them
+    -- might conflict with system mappings.
+    mappings = {
+      -- Force two-step/fallback completions
+      force_twostep = '<A-Space>',
+      force_fallback = '<A-y>',
+
+      -- Scroll info/signature window down/up. When overriding, check for
+      -- conflicts with built-in keys for popup menu (like `<C-u>`/`<C-o>`
+      -- for 'completefunc'/'omnifunc' source function; or `<C-n>`/`<C-p>`).
+      scroll_down = '<C-PageDown>',
+      scroll_up = '<C-PageUp>',
     },
   }
-
-  local imap_expr = function(lhs, rhs)
-    vim.keymap.set('i', lhs, rhs, { expr = true })
-  end
-  imap_expr('<Tab>', [[pumvisible() ? "\<C-n>" : "\<Tab>"]])
-  imap_expr('<S-Tab>', [[pumvisible() ? "\<C-p>" : "\<S-Tab>"]])
 ```
 
 One interesting things is that you can also specify the priority of the completion "kinds":
