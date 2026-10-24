@@ -2,47 +2,85 @@
 import fs from "fs"
 import path from "path"
 import YAML from "yaml"
-import { installPlugins, parsePluginSource } from "./gitLoader.js"
-import type { QuartzPluginsJson } from "./types.js"
+import { installPlugins, parsePluginSource, regeneratePluginIndex } from "./gitLoader.js"
+import type { PluginSource, QuartzPluginsJson } from "./types.js"
 
-function readPluginSources(): string[] {
-  const yamlPath = path.join(process.cwd(), "quartz.config.yaml")
-  const defaultYamlPath = path.join(process.cwd(), "quartz.config.default.yaml")
-  const jsonPath = path.join(process.cwd(), "quartz.plugins.json")
-  const defaultJsonPath = path.join(process.cwd(), "quartz.plugins.default.json")
+function resolveConfigPath(): string {
+  const configYamlPath = path.join(process.cwd(), "quartz.config.yaml")
+  const defaultConfigYamlPath = path.join(process.cwd(), "quartz.config.default.yaml")
+  const legacyPluginsJsonPath = path.join(process.cwd(), "quartz.plugins.json")
+  const legacyDefaultPluginsJsonPath = path.join(process.cwd(), "quartz.plugins.default.json")
 
-  const configPath = [yamlPath, jsonPath, defaultYamlPath, defaultJsonPath].find((p) =>
-    fs.existsSync(p),
-  )
-  if (!configPath) return []
+  if (fs.existsSync(configYamlPath)) return configYamlPath
+  if (fs.existsSync(legacyPluginsJsonPath)) return legacyPluginsJsonPath
+  if (fs.existsSync(defaultConfigYamlPath)) return defaultConfigYamlPath
+  if (fs.existsSync(legacyDefaultPluginsJsonPath)) return legacyDefaultPluginsJsonPath
+  return configYamlPath
+}
 
+function readPluginsJson(): QuartzPluginsJson | null {
+  const configPath = resolveConfigPath()
+  if (!fs.existsSync(configPath)) return null
   const raw = fs.readFileSync(configPath, "utf-8")
-  const config: QuartzPluginsJson =
-    configPath.endsWith(".yaml") || configPath.endsWith(".yml") ? YAML.parse(raw) : JSON.parse(raw)
+  if (configPath.endsWith(".yaml") || configPath.endsWith(".yml")) {
+    return YAML.parse(raw)
+  }
+  return JSON.parse(raw)
+}
 
-  return (config.plugins ?? [])
-    .filter((e) => e.enabled)
-    .map((e) => (typeof e.source === "string" ? e.source : e.source.repo))
+async function getExternalPluginSources(): Promise<PluginSource[]> {
+  try {
+    const module = await import("../../../quartz.js")
+    const config = module.default ?? module
+    const externalPlugins = config.externalPlugins
+    if (Array.isArray(externalPlugins) && externalPlugins.length > 0) {
+      return externalPlugins as PluginSource[]
+    }
+  } catch {
+    // fall back to config yaml parsing
+  }
+
+  const pluginsJson = readPluginsJson()
+  const entries = pluginsJson?.plugins ?? []
+  return entries.filter((entry) => entry.enabled !== false).map((entry) => entry.source)
 }
 
 async function main() {
-  const pluginSources = readPluginSources()
+  const externalPlugins = await getExternalPluginSources()
 
-  if (pluginSources.length === 0) {
+  if (externalPlugins.length === 0) {
     console.log("No external plugins to install.")
     return
   }
 
-  console.log(`Installing ${pluginSources.length} plugin(s) from Git...`)
+  const specs = externalPlugins
+    .map((source: PluginSource) => parsePluginSource(source))
+    .filter((spec) => !spec.npmPackage)
 
-  const specs = pluginSources.map((source: string) => parsePluginSource(source))
-  const installed = await installPlugins(specs, { verbose: true })
+  const npmSpecs = externalPlugins
+    .map((source: PluginSource) => parsePluginSource(source))
+    .filter((spec) => spec.npmPackage)
 
-  if (installed.size === pluginSources.length) {
-    console.log("✓ All plugins installed successfully")
-  } else {
-    console.error(`✗ Only ${installed.size}/${pluginSources.length} plugins installed`)
-    process.exit(1)
+  if (specs.length === 0 && npmSpecs.length === 0) {
+    console.log("No external plugins to install.")
+    return
+  }
+
+  if (specs.length > 0) {
+    console.log(`Installing ${specs.length} plugin(s) from Git...`)
+    const installed = await installPlugins(specs, { verbose: true })
+
+    if (installed.size === specs.length) {
+      console.log("✓ All Git plugins installed successfully")
+    } else {
+      console.error(`✗ Only ${installed.size}/${specs.length} Git plugins installed`)
+      process.exit(1)
+    }
+  }
+
+  if (npmSpecs.length > 0) {
+    console.log(`Found ${npmSpecs.length} npm plugin(s), regenerating plugin index...`)
+    await regeneratePluginIndex({ verbose: true, npmPackages: npmSpecs.map((s) => s.name) })
   }
 }
 

@@ -4,6 +4,7 @@ import { execSync } from "child_process"
 import git from "isomorphic-git"
 import http from "isomorphic-git/http/node"
 import { styleText } from "util"
+import { fileURLToPath } from "node:url"
 import { pathToFileURL } from "url"
 import { PluginSource } from "./types"
 
@@ -31,6 +32,8 @@ export interface GitPluginSpec {
   subdir?: string
   /** Whether this is a local path source */
   local?: boolean
+  /** Whether this is an npm package (installed in node_modules) */
+  npmPackage?: boolean
 }
 
 export type PluginInstallSource = string | GitPluginSpec
@@ -87,6 +90,7 @@ export function parsePluginSource(source: PluginSource): GitPluginSpec {
       ref: ref || expanded.ref || undefined,
       subdir,
       local: expanded.local,
+      npmPackage: expanded.npmPackage,
     }
   }
 
@@ -129,6 +133,16 @@ export function parsePluginSource(source: PluginSource): GitPluginSpec {
     return { name, repo: url, ref: ref || undefined }
   }
 
+  // Handle npm scoped packages (e.g. @quartz-community/syntax-highlighting)
+  if (
+    typeof source === "string" &&
+    source.startsWith("@") &&
+    source.includes("/") &&
+    !source.includes(":")
+  ) {
+    return { name: source, repo: "", npmPackage: true }
+  }
+
   // Assume it's a plain repo name and try github
   const parts = source.split("/")
   if (parts.length === 2) {
@@ -161,9 +175,9 @@ function collectNativeDeps(pluginDir: string): Map<string, string> {
     if (!manifest.requiresInstall) return result
 
     const peerDeps: Record<string, string> = pkg.peerDependencies ?? {}
+    const sharedExternals = getSharedExternals()
     for (const [name, range] of Object.entries(peerDeps)) {
-      // Skip shared externals that Quartz already provides
-      if (SHARED_EXTERNALS.some((prefix) => name.startsWith(prefix)) || name === "vfile") {
+      if (sharedExternals.some((prefix) => name.startsWith(prefix))) {
         continue
       }
       result.set(name, range)
@@ -177,7 +191,7 @@ function collectNativeDeps(pluginDir: string): Map<string, string> {
 
 /**
  * Install all collected native dependencies into the Quartz root with a single
- * `bun install --no-save`. Lets bun resolve compatible versions across plugins.
+ * `npm install --no-save`. Lets npm resolve compatible versions across plugins.
  */
 export function installNativeDeps(
   nativeDeps: Map<string, Map<string, string>>,
@@ -216,10 +230,10 @@ export function installNativeDeps(
       if (options.verbose) {
         console.warn(
           styleText("yellow", `⚠`),
-          `Multiple version ranges for ${pkg}: ${uniqueRanges.join(", ")}. bun will attempt to resolve a compatible version.`,
+          `Multiple version ranges for ${pkg}: ${uniqueRanges.join(", ")}. npm will attempt to resolve a compatible version.`,
         )
       }
-      // Use first range; bun will fail if truly incompatible
+      // Use first range; npm will fail if truly incompatible
       installArgs.push(`${pkg}@${JSON.stringify(uniqueRanges[0])}`)
     }
   }
@@ -234,7 +248,7 @@ export function installNativeDeps(
   }
 
   try {
-    execSync(`bun install --no-save ${installArgs.join(" ")}`, {
+    execSync(`npm install --no-save ${installArgs.join(" ")}`, {
       cwd: process.cwd(),
       stdio: options.verbose ? "inherit" : "pipe",
       timeout: 120_000,
@@ -269,6 +283,11 @@ function isDistGitignored(pluginDir: string): boolean {
   })
 }
 
+function hasPrebuiltDist(pluginDir: string): boolean {
+  const distDir = path.join(pluginDir, "dist")
+  return fs.existsSync(distDir) && !isDistGitignored(pluginDir)
+}
+
 function needsBuild(pluginDir: string): boolean {
   if (isDistGitignored(pluginDir)) return true
   const distDir = path.join(pluginDir, "dist")
@@ -301,6 +320,15 @@ function findPluginByPackageName(packageName: string): string | null {
  * share a single copy of packages like unified, vfile, preact, etc.
  * @quartz-community/* peers resolve to co-installed sibling plugins instead.
  */
+function trySymlink(target: string, linkPath: string): void {
+  try {
+    fs.symlinkSync(target, linkPath, "dir")
+  } catch (err: unknown) {
+    if ((err as NodeJS.ErrnoException).code === "EEXIST") return
+    throw err
+  }
+}
+
 function linkPeerDependencies(pluginDir: string): void {
   const pkgPath = path.join(pluginDir, "package.json")
   if (!fs.existsSync(pkgPath)) return
@@ -323,7 +351,7 @@ function linkPeerDependencies(pluginDir: string): void {
       fs.mkdirSync(scopeDir, { recursive: true })
 
       const target = path.relative(scopeDir, siblingPlugin)
-      fs.symlinkSync(target, peerNodeModulesPath, "dir")
+      trySymlink(target, peerNodeModulesPath)
       continue
     }
 
@@ -339,18 +367,26 @@ function linkPeerDependencies(pluginDir: string): void {
     }
 
     const target = path.relative(path.dirname(peerNodeModulesPath), hostPeerPath)
-    fs.symlinkSync(target, peerNodeModulesPath, "dir")
+    trySymlink(target, peerNodeModulesPath)
   }
 }
 
 function buildInstalledPlugin(pluginDir: string, name: string, verbose?: boolean): void {
+  if (hasPrebuiltDist(pluginDir)) {
+    if (verbose) {
+      console.log(styleText("green", `✓`), `${name}: using pre-built dist/`)
+    }
+    linkPeerDependencies(pluginDir)
+    return
+  }
+
   try {
     const shouldBuild = needsBuild(pluginDir)
 
     if (verbose) {
       console.log(styleText("cyan", `→`), `${name}: installing dependencies...`)
     }
-    execSync("bun install --ignore-scripts", {
+    execSync("npm install --ignore-scripts", {
       cwd: pluginDir,
       stdio: verbose ? "inherit" : "pipe",
       timeout: 120_000,
@@ -360,12 +396,18 @@ function buildInstalledPlugin(pluginDir: string, name: string, verbose?: boolean
       if (verbose) {
         console.log(styleText("cyan", `→`), `${name}: building...`)
       }
-      execSync("bun run build", {
+      execSync("npm run build", {
         cwd: pluginDir,
         stdio: verbose ? "inherit" : "pipe",
         timeout: 120_000,
       })
     }
+
+    execSync("npm prune --omit=dev", {
+      cwd: pluginDir,
+      stdio: verbose ? "inherit" : "pipe",
+      timeout: 60_000,
+    })
 
     linkPeerDependencies(pluginDir)
   } catch (error) {
@@ -753,15 +795,71 @@ const NODE_BUILTINS = new Set([
   "zlib",
 ])
 
-const SHARED_EXTERNALS = ["@quartz-community/", "preact", "@jackyzha0/quartz", "vfile"]
+/**
+ * Packages that must be the same JavaScript module instance at runtime across
+ * all plugins and the host. These are true singletons — duplicating them causes
+ * broken identity checks (e.g. `instanceof`, shared registries).
+ *
+ * This list should be kept small and explicit. Only add packages here when
+ * multiple copies at runtime would cause correctness issues.
+ */
+const SINGLETON_EXTERNALS = ["preact", "@jackyzha0/quartz", "vfile", "unified"]
 
+/**
+ * Scope prefixes whose packages are always treated as shared externals.
+ * Plugins under these scopes are co-installed siblings, not bundled deps.
+ */
+const SHARED_SCOPES = ["@quartz-community/", "@quartz-themes/"]
+
+/**
+ * Build the full shared externals list by combining:
+ *  1. Explicit singleton packages (must be same instance at runtime)
+ *  2. Shared scope prefixes (@quartz-community/*)
+ *  3. Auto-detected dependencies from Quartz's own package.json
+ *
+ * The auto-detection ensures that when Quartz adds a new dependency,
+ * plugins that import it won't get false "unbundled external" warnings.
+ */
+let _sharedExternalsCache: string[] | null = null
+
+export function getSharedExternals(): string[] {
+  if (_sharedExternalsCache) return _sharedExternalsCache
+
+  const externals = [...SINGLETON_EXTERNALS, ...SHARED_SCOPES]
+
+  // Auto-detect from Quartz's package.json
+  const quartzPkgPath = path.join(process.cwd(), "package.json")
+  if (fs.existsSync(quartzPkgPath)) {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(quartzPkgPath, "utf-8"))
+      const deps = Object.keys(pkg.dependencies ?? {})
+      for (const dep of deps) {
+        if (!externals.includes(dep)) {
+          externals.push(dep)
+        }
+      }
+    } catch {
+      // Fall back to explicit list only
+    }
+  }
+
+  _sharedExternalsCache = externals
+  return externals
+}
+
+/**
+ * Check whether an import specifier is an allowed external for a plugin.
+ * Allowed externals are: Node builtins, shared externals (singletons +
+ * Quartz deps + shared scopes), and the plugin's own declared peerDependencies.
+ */
 function isAllowedExternal(specifier: string, pluginPeerDeps: string[]): boolean {
   if (specifier.startsWith("node:")) return true
 
   const bare = specifier.split("/")[0]
   if (NODE_BUILTINS.has(bare)) return true
 
-  if (SHARED_EXTERNALS.some((prefix) => specifier.startsWith(prefix))) return true
+  const sharedExternals = getSharedExternals()
+  if (sharedExternals.some((prefix) => specifier.startsWith(prefix))) return true
 
   if (pluginPeerDeps.some((dep) => specifier === dep || specifier.startsWith(dep + "/"))) {
     return true
@@ -773,7 +871,7 @@ function isAllowedExternal(specifier: string, pluginPeerDeps: string[]): boolean
 export function validatePluginExternals(
   pluginName: string,
   entryPoint: string,
-  options?: { verbose?: boolean },
+  _options?: { verbose?: boolean },
 ): string[] {
   try {
     const content = fs.readFileSync(entryPoint, "utf-8")
@@ -803,12 +901,13 @@ export function validatePluginExternals(
 
     const unique = [...new Set(unexpected)]
 
-    if (unique.length > 0 && options?.verbose) {
-      console.warn(
-        styleText("yellow", `⚠`) +
-          ` Plugin ${styleText("cyan", pluginName)} has unbundled external imports that may fail at runtime:\n` +
+    if (unique.length > 0) {
+      console.error(
+        styleText("red", `✗`) +
+          ` Plugin ${styleText("cyan", pluginName)} has unbundled external imports that will fail at runtime:\n` +
           unique.map((s) => `  - ${s}`).join("\n") +
-          `\n  These packages are not provided by Quartz. The plugin should bundle them into dist/.`,
+          `\n  These packages are not provided by Quartz. The plugin must bundle them into dist/.` +
+          `\n  In the plugin's tsup.config.ts, add these to noExternal or remove the imports.`,
       )
     }
 
@@ -818,19 +917,28 @@ export function validatePluginExternals(
   }
 }
 
-export async function regeneratePluginIndex(options: { verbose?: boolean } = {}): Promise<void> {
+export async function regeneratePluginIndex(
+  options: { verbose?: boolean; npmPackages?: string[] } = {},
+): Promise<void> {
   if (!fs.existsSync(PLUGINS_CACHE_DIR)) {
-    return
+    fs.mkdirSync(PLUGINS_CACHE_DIR, { recursive: true })
   }
 
-  const plugins = fs.readdirSync(PLUGINS_CACHE_DIR).filter((name) => {
+  const pluginDirs = fs.readdirSync(PLUGINS_CACHE_DIR).filter((name) => {
     const pluginPath = path.join(PLUGINS_CACHE_DIR, name)
     return fs.statSync(pluginPath).isDirectory()
   })
 
-  const exports: string[] = []
+  // Phase 1: Collect all exports per plugin, detect conflicts
+  // importPath maps plugin key → the import specifier used in generated index.ts
+  const pluginExports = new Map<
+    string,
+    { overridable: string[]; passthrough: string[]; types: string[] }
+  >()
+  const importPath = new Map<string, string>()
+  const nameCount = new Map<string, number>()
 
-  for (const pluginName of plugins) {
+  for (const pluginName of pluginDirs) {
     const pluginDir = path.join(PLUGINS_CACHE_DIR, pluginName)
     const distIndex = path.join(pluginDir, "dist", "index.d.ts")
 
@@ -843,31 +951,196 @@ export async function regeneratePluginIndex(options: { verbose?: boolean } = {})
 
     const dtsContent = fs.readFileSync(distIndex, "utf-8")
     const exportedNames = parseExportsFromDts(dtsContent)
+    const dtsTypes = exportedNames.filter((e) => e.startsWith("type ")).map((e) => e.slice(5))
+    const dtsNamed = exportedNames.filter((e) => !e.startsWith("type "))
 
-    if (exportedNames.length > 0) {
-      const namedExports = exportedNames.filter((e) => !e.startsWith("type "))
-      const typeExports = exportedNames.filter((e) => e.startsWith("type ")).map((e) => e.slice(5))
-
-      if (namedExports.length > 0) {
-        exports.push(`export { ${namedExports.join(", ")} } from "./${pluginName}"`)
+    const jsIndex = path.join(pluginDir, "dist", "index.js")
+    let jsExports = new Set<string>()
+    if (fs.existsSync(jsIndex)) {
+      const jsContent = fs.readFileSync(jsIndex, "utf-8")
+      const jsExportMatches = jsContent.matchAll(/export\s*{\s*([^}]+)\s*}/g)
+      for (const m of jsExportMatches) {
+        for (const n of m[1].split(",")) {
+          const clean = n
+            .trim()
+            .split(/\s+as\s+/)
+            .pop()
+            ?.trim()
+          if (clean) jsExports.add(clean)
+        }
       }
-      if (typeExports.length > 0) {
-        exports.push(`export type { ${typeExports.join(", ")} } from "./${pluginName}"`)
+    }
+
+    const named = jsExports.size > 0 ? dtsNamed.filter((n) => jsExports.has(n)) : dtsNamed
+    const extraTypes = jsExports.size > 0 ? dtsNamed.filter((n) => !jsExports.has(n)) : []
+    const types = [...dtsTypes, ...extraTypes]
+
+    const overridable = named.filter((n) => isOverridableExport(n, dtsContent))
+    const passthrough = named.filter((n) => !isOverridableExport(n, dtsContent))
+
+    if (overridable.length > 0 || passthrough.length > 0 || types.length > 0) {
+      pluginExports.set(pluginName, { overridable, passthrough, types })
+      importPath.set(pluginName, `./${pluginName}`)
+      for (const n of [...overridable, ...passthrough]) {
+        nameCount.set(n, (nameCount.get(n) ?? 0) + 1)
       }
     }
   }
 
-  const indexContent = exports.join("\n") + "\n"
+  for (const npmPkg of options.npmPackages ?? []) {
+    let distIndex: string | undefined
+    try {
+      const pkgJsonPath = fileURLToPath(import.meta.resolve(`${npmPkg}/package.json`))
+      distIndex = path.join(path.dirname(pkgJsonPath), "dist", "index.d.ts")
+    } catch {
+      if (options.verbose) {
+        console.log(styleText("yellow", `⚠`), `Skipping npm package ${npmPkg}: not found`)
+      }
+      continue
+    }
+
+    if (!distIndex || !fs.existsSync(distIndex)) {
+      if (options.verbose) {
+        console.log(styleText("yellow", `⚠`), `Skipping npm package ${npmPkg}: no dist/index.d.ts`)
+      }
+      continue
+    }
+
+    const dtsContent = fs.readFileSync(distIndex, "utf-8")
+    const exportedNames = parseExportsFromDts(dtsContent)
+    const dtsTypes = exportedNames.filter((e) => e.startsWith("type ")).map((e) => e.slice(5))
+    const dtsNamed = exportedNames.filter((e) => !e.startsWith("type "))
+
+    const jsIndex = path.join(path.dirname(distIndex), "index.js")
+    let jsExports = new Set<string>()
+    if (fs.existsSync(jsIndex)) {
+      const jsContent = fs.readFileSync(jsIndex, "utf-8")
+      const jsExportMatches = jsContent.matchAll(/export\s*{\s*([^}]+)\s*}/g)
+      for (const m of jsExportMatches) {
+        for (const n of m[1].split(",")) {
+          const clean = n
+            .trim()
+            .split(/\s+as\s+/)
+            .pop()
+            ?.trim()
+          if (clean) jsExports.add(clean)
+        }
+      }
+    }
+
+    const named = jsExports.size > 0 ? dtsNamed.filter((n) => jsExports.has(n)) : dtsNamed
+    const extraTypes = jsExports.size > 0 ? dtsNamed.filter((n) => !jsExports.has(n)) : []
+    const types = [...dtsTypes, ...extraTypes]
+
+    const overridable = named.filter((n) => isOverridableExport(n, dtsContent))
+    const passthrough = named.filter((n) => !isOverridableExport(n, dtsContent))
+
+    const key = npmPkg.replace(/^@/, "").replace(/\//g, "__")
+    if (overridable.length > 0 || passthrough.length > 0 || types.length > 0) {
+      pluginExports.set(key, { overridable, passthrough, types })
+      importPath.set(key, npmPkg)
+      for (const n of [...overridable, ...passthrough]) {
+        nameCount.set(n, (nameCount.get(n) ?? 0) + 1)
+      }
+    }
+  }
+
+  // Phase 2: Generate index with registry import, plugin map, and conditional top-level exports
+  const lines: string[] = []
+
+  lines.push(`import { componentRegistry } from "../../quartz/components/registry"`)
+  lines.push("")
+
+  for (const [pluginKey, { types }] of pluginExports) {
+    if (types.length > 0) {
+      lines.push(`export type { ${types.join(", ")} } from "${importPath.get(pluginKey)}"`)
+    }
+  }
+
+  for (const [pluginKey, { passthrough }] of pluginExports) {
+    if (passthrough.length === 0) continue
+    const unique = passthrough.filter((n) => (nameCount.get(n) ?? 0) === 1)
+    if (unique.length > 0) {
+      lines.push(`export { ${unique.join(", ")} } from "${importPath.get(pluginKey)}"`)
+    }
+  }
+  lines.push("")
+
+  // Generate the plugins map with override wrappers (overridable exports only)
+  lines.push(
+    `export const plugins: Record<string, Record<string, (...args: unknown[]) => void>> = {`,
+  )
+  for (const [pluginName, { overridable }] of pluginExports) {
+    if (overridable.length === 0) continue
+    const escapedName = pluginName.replace(/"/g, '\\"')
+    lines.push(`  "${escapedName}": {`)
+    for (const n of overridable) {
+      lines.push(
+        `    ${n}: (...args: unknown[]) => { componentRegistry.setOptionOverrides("${escapedName}", args[0] as Record<string, unknown>); },`,
+      )
+    }
+    lines.push(`  },`)
+  }
+  lines.push(`}`)
+  lines.push("")
+
+  // Top-level exports for overridable names: alias to the plugins map wrapper
+  for (const [pluginName, { overridable }] of pluginExports) {
+    if (overridable.length === 0) continue
+
+    const unique = overridable.filter((n) => (nameCount.get(n) ?? 0) === 1)
+    const conflicting = overridable.filter((n) => (nameCount.get(n) ?? 0) > 1)
+
+    if (unique.length > 0) {
+      const escapedName = pluginName.replace(/"/g, '\\"')
+      for (const n of unique) {
+        lines.push(`export const ${n} = plugins["${escapedName}"].${n}`)
+      }
+    }
+
+    if (conflicting.length > 0 && options.verbose) {
+      for (const n of conflicting) {
+        console.warn(
+          styleText("yellow", `⚠`),
+          `Export "${n}" conflicts across plugins — use plugins["${pluginName}"].${n} in quartz.ts`,
+        )
+      }
+    }
+  }
+
+  lines.push("")
+
+  const indexContent = lines.join("\n")
   const indexPath = path.join(PLUGINS_CACHE_DIR, "index.ts")
 
   fs.writeFileSync(indexPath, indexContent)
 
   if (options.verbose) {
-    console.log(styleText("green", `✓`), `Regenerated plugin index with ${plugins.length} plugins`)
+    console.log(
+      styleText("green", `✓`),
+      `Regenerated plugin index with ${pluginDirs.length} plugins`,
+    )
   }
 }
 
 const INTERNAL_EXPORTS = new Set(["manifest", "default"])
+
+const PLUGIN_TYPE_PATTERN =
+  /Quartz(?:Emitter|Transformer|Filter|PageType)Plugin|QuartzComponentConstructor|\(.*\)\s*=>\s*QuartzComponent\b/
+
+function resolveOriginalName(exportName: string, dtsContent: string): string {
+  const aliasPattern = new RegExp(`(\\w+)\\s+as\\s+${exportName}\\b`)
+  const match = dtsContent.match(aliasPattern)
+  return match ? match[1] : exportName
+}
+
+function isOverridableExport(name: string, dtsContent: string): boolean {
+  const declName = resolveOriginalName(name, dtsContent)
+  const declPattern = new RegExp(`declare\\s+const\\s+${declName}\\s*:\\s*(.+?)(?:;|$)`, "m")
+  const match = dtsContent.match(declPattern)
+  if (!match) return false
+  return PLUGIN_TYPE_PATTERN.test(match[1])
+}
 
 function parseExportsFromDts(content: string): string[] {
   const exports: string[] = []

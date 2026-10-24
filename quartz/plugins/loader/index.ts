@@ -99,11 +99,7 @@ function extractPluginFactory(
   module: unknown,
   type: "transformer" | "filter" | "emitter" | "pageType",
 ):
-  | QuartzTransformerPlugin
-  | QuartzFilterPlugin
-  | QuartzEmitterPlugin
-  | QuartzPageTypePlugin
-  | null {
+  QuartzTransformerPlugin | QuartzFilterPlugin | QuartzEmitterPlugin | QuartzPageTypePlugin | null {
   if (!module || typeof module !== "object") return null
 
   const mod = module as Record<string, unknown>
@@ -112,10 +108,7 @@ function extractPluginFactory(
 
   if (typeof factory === "function") {
     return factory as
-      | QuartzTransformerPlugin
-      | QuartzFilterPlugin
-      | QuartzEmitterPlugin
-      | QuartzPageTypePlugin
+      QuartzTransformerPlugin | QuartzFilterPlugin | QuartzEmitterPlugin | QuartzPageTypePlugin
   }
 
   return null
@@ -139,7 +132,7 @@ async function resolveSinglePlugin(
 ): Promise<{ plugin: LoadedPlugin | null; error: PluginResolutionError | null }> {
   let packageName: string
   let manifest: Partial<PluginManifest> = {}
-  let pluginSource = "bun"
+  let pluginSource = "npm"
 
   if (typeof specifier === "string") {
     packageName = specifier
@@ -427,7 +420,7 @@ async function resolveSinglePlugin(
         plugin: null,
         error: {
           plugin: packageName,
-          message: `Plugin package not found. Run 'bun install ${packageName}' to install it.`,
+          message: `Plugin package not found. Run 'npm install ${packageName}' to install it.`,
           type: "not-found",
         },
       }

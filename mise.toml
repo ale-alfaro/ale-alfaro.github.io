@@ -2,41 +2,45 @@
 cd = 'mise i -q'
 
 [shell_alias]
-quartz = './quartz/bootstrap-cli.mjs'
+quartz = 'npx quartz'
 
 [tools]
-bun = "latest"
+node = "lts"
 dprint = "latest"
 hk = "latest"
 pkl = "latest"
 prettier = "latest"
 
-[tasks.install]
-description = "Install bun dependencies"
-run = ['bun install', 'bun run install-plugins']
+[deps.npm]
+auto = true
+
+[deps.plugins]
+auto = true
+description = "Install Quartz plugins"
+depends = ["npm"]
+sources = ["quartz.config.yaml", "quartz.lock.json"]
+outputs = [".quartz/plugins"]
+run = "npm run install-plugins"
 
 [tasks.sync]
 description = "Sync with Quartz"
-depends = ["install"]
-run = ['bun quartz sync -d blog -v']
+run = ['npx quartz sync -d blog -v']
 
 [tasks.commit]
 description = "Commit and Sync with Quartz"
-depends = ["install"]
-run = ['bun quartz sync -d blog -v --commit']
+run = ['npx quartz sync -d blog -v --commit']
 
 [tasks.build_deploy]
 description = "Build and deploy in CI"
-depends = ["install"]
 outputs = 'public/**'
 hide = true
-run = ['bun quartz build -d blog -v --bundleInfo']
+run = ['npx quartz build -d blog -v --bundleInfo']
 
 [tasks.build_local]
 description = "Build and deploy over localhost"
 alias = "build"
 outputs = 'public/**'
-run = ['bun quartz build -d blog --serve -v']
+run = ['npx quartz build -d blog --serve -v']
 
 [env]
 HK_MISE = "1"
