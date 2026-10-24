@@ -1,3 +1,12 @@
 @use "./variables.scss" as *;
 
 // put your custom CSS here!
+
+// Tagline under the sidebar site title
+.page-title::after {
+  content: "Place where I empty out my prefrontal cortex";
+  display: block;
+  font-size: 0.9rem;
+  font-weight: normal;
+  color: var(--gray);
+}

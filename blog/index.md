@@ -1,5 +1,5 @@
 ---
-title: Homepage
+title: Home
 created: 2026 03 29
 modified: 2026 04 11
 publish: true

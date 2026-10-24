@@ -1,11 +1,10 @@
 #yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
     pageTitle: Cortex Dump
-    pageTitleSuffix: "Place where I empty out my prefrontal cortex"
+    pageTitleSuffix: " | Cortex Dump"
     enableSPA: true
     enablePopovers: true
-    analytics:
-        provider: plausible
+    analytics: null
     locale: en-US
     baseUrl: ale-alfaro.github.io
     ignorePatterns:
