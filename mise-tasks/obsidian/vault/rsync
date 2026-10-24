@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+#MISE description="Mirror the blog folder from the Obsidian vault into blog/"
+#MISE dir="{{cwd}}"
+#USAGE arg "<src>" help="Blog folder inside the vault"
+#USAGE flag "-n --dry-run" help="Only list what would change" negate="--no-dry-run" default=#true
+
+flags=(
+    '-a'       # archive mode. equal to -rlptgoD ((r)ecurse,copy sym(l)inks,preserve (p)ermissions,(t)imes, (g)roups, (o)wners and (D)evices)
+    '--delete' # delete extraneous files from dest directories
+    '-i'       # output a change-summary for all updates
+    '--exclude=.markdownlint-cli2.jsonc'
+)
+if [[ "${usage_dry_run?}" == "false" ]]; then
+    echo "=== REAL RUN: mirroring into ${MISE_PROJECT_ROOT}/blog/ ==="
+else
+    flags+=(-n)
+    echo "=== DRY RUN: nothing will change (pass --no-dry-run to apply) ==="
+fi
+
+src="${usage_src:+${usage_src%/}}"
+[[ -d "${src?}" && "${src##*/}" == blog ]] || {
+    echo "Not a valid directory ${src}"
+    exit 1
+}
+rsync "${flags[@]}" "${src}/" "${MISE_PROJECT_ROOT}/blog/"

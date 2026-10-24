@@ -24,22 +24,22 @@ run = "npm run install-plugins"
 
 [tasks.sync]
 description = "Sync with Quartz"
-run = ['npx quartz sync -d blog -v']
-
-[tasks.commit]
-description = "Commit and Sync with Quartz"
-run = ['npx quartz sync -d blog -v --commit']
+dir = '{{config_root}}'
+env = { OBSIDIAN_BLOG_HOME = { required = true } }
+confirm = "Are you sure you want to `rsync {{env.OBSIDIAN_BLOG_HOME}}/blog/ {{config_root}}/blog/` and run `npx quartz sync -d {{config_root}}/blog -v`"
+run = [
+    'mise run obsidian:vault:rsync "${OBSIDIAN_BLOG_HOME?}/blog" --no-dry-run',
+    'npx quartz sync -d blog -v',
+]
 
 [tasks.build_deploy]
 description = "Build and deploy in CI"
-outputs = 'public/**'
 hide = true
 run = ['npx quartz build -d blog -v --bundleInfo']
 
 [tasks.build_local]
 description = "Build and deploy over localhost"
 alias = "build"
-outputs = 'public/**'
 run = ['npx quartz build -d blog --serve -v']
 
 [env]
