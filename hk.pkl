@@ -3,13 +3,6 @@ import "package://github.com/jdx/hk/releases/download/v1.41.1/hk@1.41.1#/Builtin
 
 exclude = List("blog/templates","quartz/**")
 local linters = new Mapping<String, Step> {
-    // linters can be manually defined
-  ["prettier"] = (Builtins.prettier) {
-    // Enable batch processing for performance
-    batch = true
-
-    exclude = List("globals.*","quartz/**/*")
-  }
   ["actionlint"] = Builtins.actionlint
   ["dprint"] = Builtins.dprint
   ["pkl-format"] = Builtins.pkl
