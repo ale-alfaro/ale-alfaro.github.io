@@ -1,7 +1,7 @@
 #yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
-    pageTitle: Byte Talk
-    pageTitleSuffix: ""
+    pageTitle: Cortex Dump
+    pageTitleSuffix: "Place where I empty out my prefrontal cortex"
     enableSPA: true
     enablePopovers: true
     analytics:
@@ -20,26 +20,26 @@ configuration:
             body: Fira Sans
             code: Fira Code
         colors:
-            lightMode:
-                light: "#fdf6e3"
-                lightgray: "#e0dcc7"
-                gray: "#939b8a"
-                darkgray: "#5c6a72"
-                dark: "#3a464c"
-                secondary: "#3a94c5"
-                tertiary: "#8da101"
-                highlight: rgba(160, 192, 128, 0.15)
-                textHighlight: "#dbbc7f88"
-            darkMode:
-                light: "#2d353b"
-                lightgray: "#475258"
-                gray: "#859289"
-                darkgray: "#d3c6aa"
-                dark: "#e6dfc6"
-                secondary: "#7fbbb3"
-                tertiary: "#83c092"
-                highlight: rgba(127, 187, 179, 0.15)
-                textHighlight: "#dbbc7f88"
+            lightMode: # Kanagawa Lotus
+                light: "#f2ecbc" # lotusWhite3: page background
+                lightgray: "#dcd5ac" # lotusWhite1: borders, code background
+                gray: "#8a8980" # lotusGray3: muted text, graph edges
+                darkgray: "#545464" # lotusInk1: body text
+                dark: "#43436c" # lotusInk2: headings
+                secondary: "#4d699b" # lotusBlue4: links
+                tertiary: "#624c83" # lotusViolet4: hover, visited
+                highlight: rgba(77, 105, 155, 0.15)
+                textHighlight: "#c9cbd1" # lotusViolet3: ==highlights==
+            darkMode: # Kanagawa Dragon
+                light: "#181616" # dragonBlack3: page background
+                lightgray: "#393836" # dragonBlack5: borders, code background
+                gray: "#737c73" # dragonAsh: muted text, graph edges
+                darkgray: "#a6a69c" # dragonGray: body text
+                dark: "#c5c9c5" # dragonWhite: headings
+                secondary: "#8ba4b0" # dragonBlue2: links
+                tertiary: "#8992a7" # dragonViolet: hover, visited
+                highlight: rgba(139, 164, 176, 0.15)
+                textHighlight: "#2d4f67" # waveBlue2, same as Wave
 plugins:
     - source: github:quartz-community/created-modified-date
       enabled: true
@@ -54,8 +54,8 @@ plugins:
       enabled: true
       options:
           theme:
-              light: github-light
-              dark: github-dark
+              light: kanagawa-lotus
+              dark: kanagawa-dragon
           keepBackground: false
       order: 20
     - source: github:ale-alfaro/obsidian-flavored-markdown#fix/wikilink-resolution-and-publish-filter
